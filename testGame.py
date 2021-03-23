@@ -79,14 +79,14 @@ class Player(pg.sprite.Sprite):
         self.idle_anim = load_animation('doctor_idle', scale=(80, 77))
         self.walk_anim = load_animation('doctor_walk', scale=(80, 77))
         self.sprint_anim = load_animation('doctor_sprint', scale=(80, 77))
-        self.rect = self.idle_anim[0].get_rect()
         self.subFrameCounter = 0
         self.imageCounter = 0
         self.image = self.idle_anim[0]
+        self.rect = self.idle_anim[0].get_rect()
         self.area = pg.display.get_surface().get_rect()
         self.movex = 0
         self.movey = 0
-        self.facing = True
+        self.facingRight = True
 
     def _turn(self):
         # Horizontaly flips all images
@@ -130,27 +130,39 @@ class Player(pg.sprite.Sprite):
             if self.rect.bottom > self.area.bottom:
                 self.rect.bottom = self.area.bottom
 
-    def move(self, key):
-        if key == pg.K_w:
-            self.movey = -5
-        elif key == pg.K_a:
-            if self.facing:
-                self._turn()
-                self.facing = False
-            self.movex = -5
-        elif key == pg.K_s:
-            self.movey = 5
-        else:
-            if not self.facing:
-                self._turn()
-                self.facing = True
-            self.movex = 5
+    def move(self, keys):
+        movedY = False
+        movedX = False
+        # Change Speed of Player according to all pressed keys regarding order, change orientation if necessary
+        for key in reversed(keys):
+            if key == pg.K_w and not movedY:
+                self.movey = -5
+                movedY = True
+            elif key == pg.K_a and not movedX:
+                #Flip if direction changes
+                if self.facingRight:
+                    self._turn()
+                    self.facingRight = False
+                self.movex = -5
+                movedX = True
+            elif key == pg.K_s and not movedY:
+                self.movey = 5
+                movedY = True
+            elif not movedX:
+                #Flip if direction changes
+                if not self.facingRight:
+                    self._turn()
+                    self.facingRight = True
+                self.movex = 5
+                movedX = True
 
-    def stop(self, key):
-        if key in [pg.K_w, pg.K_s]:
-            self.movey = 0
-        else:
+            if movedX and movedY:
+                break
+
+        if not movedX:
             self.movex = 0
+        if not movedY:
+            self.movey = 0
 
 # ---------------------------------------------------------------------------
 
@@ -162,9 +174,7 @@ def main():
     pg.mouse.set_visible(0)
 
     # Create The Backgound
-    background = pg.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((255, 255, 0))
+    background, _ = load_image('bg.png')
 
     # Display The Background
     screen.blit(background, (0, 0))
@@ -186,6 +196,7 @@ def main():
 
     # Main Loop
     going = True
+    pressedKeys = []
     while going:
         clock.tick(30)
 
@@ -196,9 +207,10 @@ def main():
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 going = False
             if event.type == pg.KEYUP and event.key in [pg.K_w, pg.K_a, pg.K_s, pg.K_d]:
-                player.stop(event.key)
+                pressedKeys.remove(event.key)
             if event.type == pg.KEYDOWN and event.key in [pg.K_w, pg.K_a, pg.K_s, pg.K_d]:
-                player.move(event.key)
+                pressedKeys.append(event.key)
+            player.move(pressedKeys)
 
         # Draw Everything
         allsprites.clear(screen, background)
