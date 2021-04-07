@@ -2,16 +2,26 @@
 import os, sys
 import pygame as pg
 from pygame.locals import *
+from math import sqrt
 from random import randrange
+
+
+# Game Constants
+FRAMERATE = 30
+WINDOW_SIZE = [720, 720]
+CHARACTER_SPEED = 7
+ANIMATION_REFRESH = 3
+ASSETS_LOCATION = "assets"
+PLAYER_SIZE = (80, 77)  # Always keep 200x230 ratio
 
 
 # functions to create our resources
 def load_image(name, scale=None, colorkey=None):
-    fullname = os.path.join('assets', name)
+    fullname = os.path.join(ASSETS_LOCATION, name)
     try:
         image = pg.image.load(fullname)
     except pg.error as message:
-        print('Cannot load image:', name)
+        print("Cannot load image:", name)
         raise SystemExit(message)
     if scale is not None:
         image = pg.transform.scale(image, scale)
@@ -22,8 +32,9 @@ def load_image(name, scale=None, colorkey=None):
     image = image.convert_alpha()
     return image, image.get_rect()
 
+
 def load_animation(folder, scale=None, colorkey=None):
-    directory = os.path.join('assets', folder)
+    directory = os.path.join(ASSETS_LOCATION, folder)
 
     images = []
     for file in os.listdir(directory):
@@ -35,7 +46,7 @@ def load_animation(folder, scale=None, colorkey=None):
         try:
             image = pg.image.load(fullname)
         except pg.error as message:
-            print('Cannot load image:', name)
+            print("Cannot load image:", name)
             raise SystemExit(message)
         if scale is not None:
             image = pg.transform.scale(image, scale)
@@ -47,8 +58,8 @@ def load_animation(folder, scale=None, colorkey=None):
 
         images.append(image)
 
-
     return images
+
 
 # ---------------------------------------------------------------------------
 
@@ -56,7 +67,7 @@ def load_animation(folder, scale=None, colorkey=None):
 class Ball(pg.sprite.Sprite):
     def __init__(self, movex, movey):
         pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.image, self.rect = load_image('intro_ball.gif', scale=(80, 80))
+        self.image, self.rect = load_image("intro_ball.gif", scale=(80, 80))
         self.area = pg.display.get_surface().get_rect()
         self.movex = movex
         self.movey = movey
@@ -72,17 +83,59 @@ class Ball(pg.sprite.Sprite):
                 newpos = self.rect.move((0, self.movey))
         self.rect = newpos
 
+    def deflect(self, playerRect):
+        # Get all edges building the Ball rect
+        edges = [
+            ((self.rect.left, self.rect.top), (self.rect.right, self.rect.top)),
+            (
+                (self.rect.left, self.rect.bottom),
+                (self.rect.right, self.rect.bottom),
+            ),
+            (
+                (self.rect.right, self.rect.top),
+                (self.rect.right, self.rect.bottom),
+            ),
+            (
+                (self.rect.left, self.rect.top),
+                (self.rect.left, self.rect.bottom),
+            ),
+        ]
+        # Check which edge is included in player rect most
+        bestEdge = [(0, 0)]
+        for i, edge in enumerate(edges):
+            clipline = playerRect.clipline(edge)
+            print(clipline)
+            if len(clipline) == 0:
+                edges[i] = 0.0
+            else:
+                dx = edge[0][0] - edge[1][0]
+                dy = edge[1][0] - edge[1][1]
+                length = sqrt(dx ** 2 + dy ** 2)
+                if length > bestEdge[0][1]:
+                    bestEdge = [(i, length)]
+                elif length == bestEdge[0][1]:
+                    bestEdge.append((i, length))
+
+        # Change x and y speeds accordingly
+        if len(bestEdge) > 1:
+            self.movex = -self.movex
+            self.movey = -self.movey
+        elif bestEdge[0][0] in [0, 1]:
+            self.movey = -self.movey
+        else:
+            self.movex = -self.movex
+
 
 class Player(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.idle_anim = load_animation('doctor_idle', scale=(80, 77))
-        self.walk_anim = load_animation('doctor_walk', scale=(80, 77))
-        self.sprint_anim = load_animation('doctor_sprint', scale=(80, 77))
+        self.idle_anim = load_animation("doctor_idle", scale=(80, 77))
+        self.walk_anim = load_animation("doctor_walk", scale=(80, 77))
+        self.sprint_anim = load_animation("doctor_sprint", scale=(80, 77))
         self.subFrameCounter = 0
         self.imageCounter = 0
         self.image = self.idle_anim[0]
-        self.rect = self.idle_anim[0].get_rect()
+        self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in WINDOW_SIZE])
         self.area = pg.display.get_surface().get_rect()
         self.movex = 0
         self.movey = 0
@@ -99,7 +152,7 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         # Animate Character
-        if self.subFrameCounter == 2:
+        if self.subFrameCounter == ANIMATION_REFRESH - 1:
             # Increment ImageCounter
             newImageCount = self.imageCounter + 1
             if newImageCount >= len(self.idle_anim):
@@ -136,24 +189,24 @@ class Player(pg.sprite.Sprite):
         # Change Speed of Player according to all pressed keys regarding order, change orientation if necessary
         for key in reversed(keys):
             if key == pg.K_w and not movedY:
-                self.movey = -5
+                self.movey = -CHARACTER_SPEED
                 movedY = True
             elif key == pg.K_a and not movedX:
-                #Flip if direction changes
+                # Flip if direction changes
                 if self.facingRight:
                     self._turn()
                     self.facingRight = False
-                self.movex = -5
+                self.movex = -CHARACTER_SPEED
                 movedX = True
             elif key == pg.K_s and not movedY:
-                self.movey = 5
+                self.movey = CHARACTER_SPEED
                 movedY = True
             elif not movedX:
-                #Flip if direction changes
+                # Flip if direction changes
                 if not self.facingRight:
                     self._turn()
                     self.facingRight = True
-                self.movex = 5
+                self.movex = CHARACTER_SPEED
                 movedX = True
 
             if movedX and movedY:
@@ -164,17 +217,22 @@ class Player(pg.sprite.Sprite):
         if not movedY:
             self.movey = 0
 
+    def get_rect(self):
+        return self.rect
+
+
 # ---------------------------------------------------------------------------
+
 
 def main():
     # Initialize Everything
     pg.init()
-    screen = pg.display.set_mode((720, 720))
+    screen = pg.display.set_mode(WINDOW_SIZE)
     pg.display.set_caption("Sneaky Doctor")
     pg.mouse.set_visible(0)
 
     # Create The Backgound
-    background, _ = load_image('bg.png')
+    background, _ = load_image("bg.png")
 
     # Display The Background
     screen.blit(background, (0, 0))
@@ -193,12 +251,11 @@ def main():
     player = Player()
     allsprites.add(player)
 
-
     # Main Loop
     going = True
     pressedKeys = []
     while going:
-        clock.tick(30)
+        clock.tick(FRAMERATE)
 
         # Handle Input Events
         for event in pg.event.get():
@@ -208,9 +265,20 @@ def main():
                 going = False
             if event.type == pg.KEYUP and event.key in [pg.K_w, pg.K_a, pg.K_s, pg.K_d]:
                 pressedKeys.remove(event.key)
-            if event.type == pg.KEYDOWN and event.key in [pg.K_w, pg.K_a, pg.K_s, pg.K_d]:
+            if event.type == pg.KEYDOWN and event.key in [
+                pg.K_w,
+                pg.K_a,
+                pg.K_s,
+                pg.K_d,
+            ]:
                 pressedKeys.append(event.key)
             player.move(pressedKeys)
+
+        # Handle Collisions
+        collided_balls = pg.sprite.spritecollide(player, balls, False)
+        playerRect = player.get_rect()
+        for ball in collided_balls:
+            ball.deflect(playerRect)
 
         # Draw Everything
         allsprites.clear(screen, background)
@@ -219,6 +287,7 @@ def main():
         pg.display.update(dirty_areas)
 
     pg.quit()
+
 
 # ---------------------------------------------------------------------------
 
