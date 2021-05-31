@@ -63,68 +63,6 @@ def load_animation(folder, scale=None, colorkey=None):
 
 # ---------------------------------------------------------------------------
 
-# classes for our game objects
-class Ball(pg.sprite.Sprite):
-    def __init__(self, movex, movey):
-        pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.image, self.rect = load_image("intro_ball.gif", scale=(80, 80))
-        self.area = pg.display.get_surface().get_rect()
-        self.movex = movex
-        self.movey = movey
-
-    def update(self):
-        newpos = self.rect.move((self.movex, self.movey))
-        if not self.area.contains(newpos):
-            if self.rect.left < self.area.left or self.rect.right > self.area.right:
-                self.movex = -self.movex
-                newpos = self.rect.move((self.movex, 0))
-            if self.rect.top < self.area.top or self.rect.bottom > self.area.bottom:
-                self.movey = -self.movey
-                newpos = self.rect.move((0, self.movey))
-        self.rect = newpos
-
-    def deflect(self, playerRect):
-        # Get all edges building the Ball rect
-        edges = [
-            ((self.rect.left, self.rect.top), (self.rect.right, self.rect.top)),
-            (
-                (self.rect.left, self.rect.bottom),
-                (self.rect.right, self.rect.bottom),
-            ),
-            (
-                (self.rect.right, self.rect.top),
-                (self.rect.right, self.rect.bottom),
-            ),
-            (
-                (self.rect.left, self.rect.top),
-                (self.rect.left, self.rect.bottom),
-            ),
-        ]
-        # Check which edge is included in player rect most
-        bestEdge = [(0, 0)]
-        for i, edge in enumerate(edges):
-            clipline = playerRect.clipline(edge)
-            print(clipline)
-            if len(clipline) == 0:
-                edges[i] = 0.0
-            else:
-                dx = edge[0][0] - edge[1][0]
-                dy = edge[1][0] - edge[1][1]
-                length = sqrt(dx ** 2 + dy ** 2)
-                if length > bestEdge[0][1]:
-                    bestEdge = [(i, length)]
-                elif length == bestEdge[0][1]:
-                    bestEdge.append((i, length))
-
-        # Change x and y speeds accordingly
-        if len(bestEdge) > 1:
-            self.movex = -self.movex
-            self.movey = -self.movey
-        elif bestEdge[0][0] in [0, 1]:
-            self.movey = -self.movey
-        else:
-            self.movex = -self.movex
-
 
 class Player(pg.sprite.Sprite):
     def __init__(self):
@@ -241,13 +179,6 @@ def main():
     # Prepare Game Objects
     clock = pg.time.Clock()
     allsprites = pg.sprite.RenderUpdates()
-    balls = pg.sprite.Group()
-    for _ in range(5):
-        movex = randrange(2, 10)
-        movey = randrange(2, 10)
-        newBall = Ball(movex, movey)
-        balls.add(newBall)
-        allsprites.add(newBall)
     player = Player()
     allsprites.add(player)
 
@@ -273,12 +204,6 @@ def main():
             ]:
                 pressedKeys.append(event.key)
             player.move(pressedKeys)
-
-        # Handle Collisions
-        collided_balls = pg.sprite.spritecollide(player, balls, False)
-        playerRect = player.get_rect()
-        for ball in collided_balls:
-            ball.deflect(playerRect)
 
         # Draw Everything
         allsprites.clear(screen, background)
