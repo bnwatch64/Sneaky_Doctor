@@ -3,46 +3,30 @@ from loadsources import *
 from gameConstants import *
 
 
-class Player(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
     def __init__(self, parentSurface):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.idle_anim = load_animation("doctor_idle", scale=PLAYER_SIZE)
-        self.walk_anim = load_animation("doctor_walk", scale=PLAYER_SIZE)
-        self.sprint_anim = load_animation("doctor_sprint", scale=PLAYER_SIZE)
+        self.anims = load_enemy_animations(scale=ENEMY_SIZE)
         self.subFrameCounter = 0
         self.imageCounter = 0
-        self.image = self.idle_anim[0]
-        self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in GAME_SIZE])
+        self.image = self.anims["right"][0]
+        self.rect = self.anims["right"][0].get_rect().move([x / 2 for x in GAME_SIZE])
         self.area = parentSurface.get_rect()
         self.movex = 0
         self.movey = 0
-        self.facingRight = True
-
-    def _turn(self):
-        # Horizontaly flips all images
-        for i in range(0, len(self.idle_anim)):
-            self.idle_anim[i] = pygame.transform.flip(self.idle_anim[i], True, False)
-        for i in range(0, len(self.walk_anim)):
-            self.walk_anim[i] = pygame.transform.flip(self.walk_anim[i], True, False)
-        for i in range(0, len(self.sprint_anim)):
-            self.sprint_anim[i] = pygame.transform.flip(
-                self.sprint_anim[i], True, False
-            )
+        self.facing = "right"
 
     def update(self):
         # Animate Character
         if self.subFrameCounter == ANIMATION_REFRESH - 1:
             # Increment ImageCounter
             newImageCount = self.imageCounter + 1
-            if newImageCount >= len(self.idle_anim):
+            if newImageCount >= len(self.anims[self.facing]):
                 newImageCount = 0
             self.imageCounter = newImageCount
 
             # Set new Image
-            if self.movex == 0 and self.movey == 0:
-                self.image = self.idle_anim[self.imageCounter]
-            else:
-                self.image = self.sprint_anim[self.imageCounter]
+            self.image = self.anims[self.facing][self.imageCounter]
 
             # Reset SubFrameCounter
             self.subFrameCounter = 0
@@ -65,26 +49,23 @@ class Player(pygame.sprite.Sprite):
     def move(self, keys):
         movedY = False
         movedX = False
-        # Change Speed of Player according to all pressed keys regarding order, change orientation if necessary
+        # Change Speed of Enemy according to all pressed keys regarding order
+        # Change orientation if necessary
         for key in reversed(keys):
             if key == pygame.K_w and not movedY:
+                self.facing = "back"
                 self.movey = -CHARACTER_SPEED
                 movedY = True
             elif key == pygame.K_a and not movedX:
-                # Flip if direction changes
-                if self.facingRight:
-                    self._turn()
-                    self.facingRight = False
+                self.facing = "left"
                 self.movex = -CHARACTER_SPEED
                 movedX = True
             elif key == pygame.K_s and not movedY:
+                self.facing = "front"
                 self.movey = CHARACTER_SPEED
                 movedY = True
             elif not movedX:
-                # Flip if direction changes
-                if not self.facingRight:
-                    self._turn()
-                    self.facingRight = True
+                self.facing = "right"
                 self.movex = CHARACTER_SPEED
                 movedX = True
 
