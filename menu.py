@@ -1,13 +1,13 @@
 import pygame
 import pygame_menu
-from game import Game
+from gameView import GameView
 from gameConstants import *
 
 
 class Menu:
     def __init__(self, screenSize):
-        self.game = Game(screenSize)
-        self.screen = self.game.screen
+        self.gameView = GameView(screenSize)
+        self.screen = pygame.display.get_surface()
         self.screenSize = screenSize
 
     def create_menu(self):
@@ -19,7 +19,7 @@ class Menu:
         menu = pygame_menu.Menu(
             "Sneaky Doctor", self.screenSize[0], self.screenSize[1], theme=my_theme
         )
-        menu.add.button("New Game", self.game.game_loop)
+        menu.add.button("New Game", self.gameView.game_loop)
         menu.add.button(
             "Continue",
         )

@@ -4,7 +4,7 @@ from gameConstants import *
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, parentSurface):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.idle_anim = load_animation("doctor_idle", scale=(80, 77))
         self.walk_anim = load_animation("doctor_walk", scale=(80, 77))
@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.imageCounter = 0
         self.image = self.idle_anim[0]
         self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in GAME_SIZE])
-        self.area = pygame.display.get_surface().get_rect()
+        self.area = parentSurface.get_rect()
         self.movex = 0
         self.movey = 0
         self.facingRight = True
