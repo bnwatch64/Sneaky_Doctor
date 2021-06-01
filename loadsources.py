@@ -1,7 +1,8 @@
 import os
 import pygame
 
-ASSETS_LOCATION = "assets"
+from gameConstants import *
+
 
 def load_animation(folder, scale=None, colorkey=None):
     directory = os.path.join(ASSETS_LOCATION, folder)
@@ -29,7 +30,6 @@ def load_animation(folder, scale=None, colorkey=None):
         images.append(image)
 
     return images
-
 
 
 # functions to create our resources

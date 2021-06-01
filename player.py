@@ -1,10 +1,6 @@
-import pygame 
+import pygame
 from loadsources import *
-
-ANIMATION_REFRESH = 3
-WINDOW_SIZE = [720, 720]
-CHARACTER_SPEED = 7
-PLAYER_SIZE = (80, 77)  # Always keep 200x230 ratio
+from gameConstants import *
 
 
 class Player(pygame.sprite.Sprite):
@@ -16,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.subFrameCounter = 0
         self.imageCounter = 0
         self.image = self.idle_anim[0]
-        self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in WINDOW_SIZE])
+        self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in GAME_SIZE])
         self.area = pygame.display.get_surface().get_rect()
         self.movex = 0
         self.movey = 0
@@ -29,7 +25,9 @@ class Player(pygame.sprite.Sprite):
         for i in range(0, len(self.walk_anim)):
             self.walk_anim[i] = pygame.transform.flip(self.walk_anim[i], True, False)
         for i in range(0, len(self.sprint_anim)):
-            self.sprint_anim[i] = pygame.transform.flip(self.sprint_anim[i], True, False)
+            self.sprint_anim[i] = pygame.transform.flip(
+                self.sprint_anim[i], True, False
+            )
 
     def update(self):
         # Animate Character
@@ -63,7 +61,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = self.area.top
             if self.rect.bottom > self.area.bottom:
                 self.rect.bottom = self.area.bottom
-
 
     def move(self, keys):
         movedY = False

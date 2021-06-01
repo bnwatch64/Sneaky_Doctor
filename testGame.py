@@ -6,13 +6,7 @@ from math import sqrt
 from random import randrange
 
 
-# Game Constants
-FRAMERATE = 30
-WINDOW_SIZE = [720, 720]
-CHARACTER_SPEED = 7
-ANIMATION_REFRESH = 3
-ASSETS_LOCATION = "assets"
-PLAYER_SIZE = (80, 77)  # Always keep 200x230 ratio
+from gameConstants import *
 
 
 # functions to create our resources
@@ -73,7 +67,7 @@ class Player(pg.sprite.Sprite):
         self.subFrameCounter = 0
         self.imageCounter = 0
         self.image = self.idle_anim[0]
-        self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in WINDOW_SIZE])
+        self.rect = self.idle_anim[0].get_rect().move([x / 2 for x in GAME_SIZE])
         self.area = pg.display.get_surface().get_rect()
         self.movex = 0
         self.movey = 0
@@ -165,7 +159,7 @@ class Player(pg.sprite.Sprite):
 def main():
     # Initialize Everything
     pg.init()
-    screen = pg.display.set_mode(WINDOW_SIZE)
+    screen = pg.display.set_mode(GAME_SIZE)
     pg.display.set_caption("Sneaky Doctor")
     pg.mouse.set_visible(0)
 
