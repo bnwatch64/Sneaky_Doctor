@@ -7,7 +7,6 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, parentSurface):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.idle_anim = load_animation("doctor_idle", scale=PLAYER_SIZE)
-        self.walk_anim = load_animation("doctor_walk", scale=PLAYER_SIZE)
         self.sprint_anim = load_animation("doctor_sprint", scale=PLAYER_SIZE)
         self.subFrameCounter = 0
         self.imageCounter = 0
@@ -22,8 +21,6 @@ class Player(pygame.sprite.Sprite):
         # Horizontaly flips all images
         for i in range(0, len(self.idle_anim)):
             self.idle_anim[i] = pygame.transform.flip(self.idle_anim[i], True, False)
-        for i in range(0, len(self.walk_anim)):
-            self.walk_anim[i] = pygame.transform.flip(self.walk_anim[i], True, False)
         for i in range(0, len(self.sprint_anim)):
             self.sprint_anim[i] = pygame.transform.flip(
                 self.sprint_anim[i], True, False
