@@ -19,30 +19,8 @@ class Game:
         self.screen.blit(self.background, (0, 0))
 
     def update_game(self):
-        going = True
-
-        # Handle Input Events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                going = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                going = False
-            if event.type == pygame.KEYUP and event.key in [
-                pygame.K_w,
-                pygame.K_a,
-                pygame.K_s,
-                pygame.K_d,
-            ]:
-                self.pressedKeys.remove(event.key)
-            if event.type == pygame.KEYDOWN and event.key in [
-                pygame.K_w,
-                pygame.K_a,
-                pygame.K_s,
-                pygame.K_d,
-            ]:
-                self.pressedKeys.append(event.key)
-
-            self.player.move(self.pressedKeys)
+        # Update movement based on pressed keys
+        self.player.move(self.pressedKeys)
 
         # Update the game Surface
         self.allsprites.clear(self.screen, self.background)
@@ -50,4 +28,4 @@ class Game:
         dirtyAreas = self.allsprites.draw(self.screen)
 
         # Return dirty dirtyAreas
-        return dirtyAreas, going
+        return dirtyAreas
