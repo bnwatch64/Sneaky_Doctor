@@ -1,5 +1,6 @@
 import pygame
 from player import Player
+from enemy import Enemy
 from loadsources import load_image
 
 from gameConstants import *
@@ -49,5 +50,4 @@ class Game:
         dirtyAreas = self.allsprites.draw(self.screen)
 
         # Return dirty dirtyAreas
-
         return dirtyAreas, going
