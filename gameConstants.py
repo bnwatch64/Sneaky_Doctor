@@ -2,7 +2,7 @@
 FRAMERATE = 30
 GAME_SIZE = [720, 720]
 BAR_HEIGHT = 100
-BAR_COLOR = (0, 20, 120)
+BAR_COLOR = (255, 255, 255)
 
 ENEMY_SAMPLES_COUNT = 4  # Number of different enemy assets
 CHARACTER_SPEED = 7
@@ -11,3 +11,9 @@ PLAYER_SIZE = (73, 80)  # Always keep 200x220 ratio
 ENEMY_SIZE = (62, 100)  # Always keep 62x100 ratio
 
 ASSETS_LOCATION = "assets"
+FONT_SIZE = 50
+BUTTON_SIZE = (30,30)
+ICON_SIZE = (40,40)
+X_PADDING = 20
+NUM_LEVELS = 10
+FONT_SIZE_MASK = 40
