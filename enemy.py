@@ -1,3 +1,4 @@
+import logging
 import pygame
 from loadsources import *
 from gameConstants import *
