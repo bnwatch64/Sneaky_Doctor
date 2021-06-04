@@ -1,3 +1,4 @@
+import logging
 import pygame
 import pygame_menu
 from gameView import GameView
@@ -22,6 +23,8 @@ class Menu:
             Return:
                 None
         """
+
+        logging.info("Initializing Menu...")
         my_theme = pygame_menu.themes.Theme(
             widget_font=pygame_menu.font.FONT_8BIT,
             title_bar_style=pygame_menu.widgets.MENUBAR_STYLE_NONE,
@@ -39,4 +42,5 @@ class Menu:
         menu.add.button("Level Selector")
         menu.add.button("Options")
         menu.add.button("Quit", pygame_menu.events.EXIT)
+        logging.info("Initializing Menu was successfull")
         menu.mainloop(self.screen)
