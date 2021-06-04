@@ -20,6 +20,12 @@ class Player(pygame.sprite.Sprite):
         self.movey = 0
         self.facingRight = True
 
+    def _get_middle_value(self, valueList):
+        # Returns the the value of a list with length 3, that is neither max nor min
+        valueList.remove(max(valueList))
+        valueList.remove(min(valueList))
+        return valueList[0]
+
     def _turn(self):
         # Horizontaly flips all images
         for i in range(0, len(self.idle_anim)):
@@ -28,6 +34,60 @@ class Player(pygame.sprite.Sprite):
             self.sprint_anim[i] = pygame.transform.flip(
                 self.sprint_anim[i], True, False
             )
+
+    def _handleWallCollisions(self, realWallRects):
+        # Handles all possible collisions with stationary game objects
+        collidedWallIdxs = self.realRect.collidelistall(realWallRects)
+
+        # Only colliding with horizontal or vertical wall
+        if 0 < len(collidedWallIdxs) < 3:
+            collideRect = realWallRects[collidedWallIdxs[0]]
+            testRect = self.realRect.copy()
+
+            # Assume collision with vertical wall
+            if self.movex > 0:
+                # Moving right (and down/up)
+                testRect.right = collideRect.left
+            else:
+                # Moving left (and down/up)
+                testRect.left = collideRect.right
+
+            # Test assumption
+            testCollide = testRect.collidelist(realWallRects)
+            testDist = self.realRect.x - testRect.x
+            if testCollide == -1 and -CHARACTER_SPEED <= testDist <= CHARACTER_SPEED:
+                # Assumption was correct and jump distance is in range, use it
+                test1 = self.realRect[0]
+                self.realRect = testRect.copy()
+            else:
+                # Assumption was wrong, handle collision with horizontal wall
+                if self.movey > 0:
+                    self.realRect.bottom = collideRect.top
+                else:
+                    self.realRect.top = collideRect.bottom
+
+        # Colliding with a corner
+        elif len(collidedWallIdxs) == 3:
+            if self.movex > 0 and self.movey > 0:
+                # Moving right down
+                cornerIdx = max(collidedWallIdxs)
+                cornerRect = realWallRects[cornerIdx]
+                self.realRect.bottomright = cornerRect.topleft
+            elif self.movex > 0 and self.movey < 0:
+                # Moving right up
+                cornerIdx = self._get_middle_value(collidedWallIdxs)
+                cornerRect = realWallRects[cornerIdx]
+                self.realRect.topright = cornerRect.bottomleft
+            elif self.movex < 0 and self.movey > 0:
+                # Moving left down
+                cornerIdx = self._get_middle_value(collidedWallIdxs)
+                cornerRect = realWallRects[cornerIdx]
+                self.realRect.bottomleft = cornerRect.topright
+            elif self.movex < 0 and self.movey < 0:
+                # Moving left up
+                cornerIdx = min(collidedWallIdxs)
+                cornerRect = realWallRects[cornerIdx]
+                self.realRect.topleft = cornerRect.bottomright
 
     def update(self, realWallRects):
         # Animate Character
@@ -65,30 +125,10 @@ class Player(pygame.sprite.Sprite):
                 self.realRect.bottom = self.realArea.bottom
 
         # Handle wall collisions
-
-        # PROBLEM: bei gleichzeitig movex und movey veruscht sich in wand zu glitchen
-        # PROBLEM: Nach rechts zu spät
-        collidedWallIdx = self.realRect.collidelist(realWallRects)
-        if not collidedWallIdx == -1:
-            collideRect = realWallRects[collidedWallIdx]
-            if not self.movex == 0:
-                if self.movex > 0:
-                    # Moving right
-                    self.realRect.right = collideRect.left - 1
-                else:
-                    # Moving left
-                    self.realRect.left = collideRect.right + 1
-
-            if not self.movey == 0:
-                if self.movey > 0:
-                    # Moving down
-                    self.realRect.bottom = collideRect.top - 1
-                else:
-                    # Moving up
-                    self.realRect.top = collideRect.bottom + 1
+        self._handleWallCollisions(realWallRects)
 
         # Translate real rect to display rect
-        self.rect.x = self.realRect.x
+        self.rect.x = self.realRect.x - int(round(0.5 * BLOCK_SIZE))
         self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
 
         # Update layer
