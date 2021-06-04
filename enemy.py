@@ -5,34 +5,70 @@ from gameConstants import *
 
 
 class Enemy(pygame.sprite.Sprite):
-    """Enemy class
-        * enemy is created
-
-    Args:
-        pygame (sprite): Sprite class is base class for Enemy class
-    """
-    def __init__(self, parentSurface):
+    def __init__(self, realStartPos, path):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.anims = load_enemy_animations(scale=ENEMY_SIZE)
         self.subFrameCounter = 0
         self.imageCounter = 0
         self.image = self.anims["right"][0]
-        self.rect = self.anims["right"][0].get_rect().move([x / 2 for x in GAME_SIZE])
-        self.area = parentSurface.get_rect()
-        self.movex = 0
-        self.movey = 0
+        self.realRect = pygame.Rect(realStartPos, (BLOCK_SIZE, BLOCK_SIZE))
+        self.rect = self.anims["right"][0].get_rect()
+        self._calcRect()
+        self._layer = int(self.realRect.top / BLOCK_SIZE)
+        self.realArea = pygame.Rect((0, 0), REAL_GAME_SIZE)
+        self.path = path
+        self.pathPos = path.index(realStartPos)
+        self.speed = MAX_NPC_SPEED  # TODO: Change according to transparency
         self.facing = "right"
 
-    def update(self):
-        """Update 
-            * Animation of enemy is updated here 
+    def get_layer(self):
+        return self._layer
 
-            Args:
-                None
+    def _calcRect(self):
+        self.rect.x = self.realRect.x - int(round(0.25 * BLOCK_SIZE))
+        self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
 
-            Return:
-                None
-        """
+    def _move(self):
+        # Get the next position alongside the path
+        newPathPos = self.pathPos + self.speed
+        if self.speed > 0:
+            overshoot = newPathPos - len(self.path) + 1
+            if overshoot > 0:
+                newPathPos = len(self.path) - overshoot
+                self.speed = -self.speed
+        else:
+            overshoot = -newPathPos
+            if overshoot > 0:
+                newPathPos = overshoot
+                self.speed = -self.speed
+
+        # Update facing attribute
+        xDiff = self.path[newPathPos][0] - self.path[self.pathPos][0]
+        yDiff = self.path[newPathPos][1] - self.path[self.pathPos][1]
+        if abs(xDiff) >= abs(yDiff):
+            if xDiff > 0:
+                # Moving right
+                self.facing = "right"
+            else:
+                # Moving left
+                self.facing = "left"
+        elif abs(xDiff) < abs(yDiff):
+            if yDiff > 0:
+                # Moving down
+                self.facing = "front"
+            else:
+                # Moving up
+                self.facing = "back"
+
+        # Update path index position and real position
+        self.pathPos = newPathPos
+        return self.path[self.pathPos]
+
+    def update(self, _):
+        # Move Character
+        newRealPos = self._move()
+        self.realRect.update(newRealPos, self.realRect.size)
+
         # Animate Character
         if self.subFrameCounter == ANIMATION_REFRESH - 1:
             # Increment ImageCounter
@@ -49,51 +85,8 @@ class Enemy(pygame.sprite.Sprite):
         else:
             self.subFrameCounter += 1
 
-        # Move Character
-        newpos = self.rect.move((self.movex, self.movey))
-        self.rect = newpos
-        if not self.area.contains(newpos):
-            if self.rect.left < self.area.left:
-                self.rect.left = self.area.left
-            if self.rect.right > self.area.right:
-                self.rect.right = self.area.right
-            if self.rect.top < self.area.top:
-                self.rect.top = self.area.top
-            if self.rect.bottom > self.area.bottom:
-                self.rect.bottom = self.area.bottom
+        # Translate real rect to display rect
+        self._calcRect()
 
-    def move(self, keys):
-        """Move the enemy
-
-        Args:
-            keys ([type]): [description]
-        """
-        movedY = False
-        movedX = False
-        # Change Speed of Enemy according to all pressed keys regarding order
-        # Change orientation if necessary
-        for key in reversed(keys):
-            if key == pygame.K_w and not movedY:
-                self.facing = "back"
-                self.movey = -CHARACTER_SPEED
-                movedY = True
-            elif key == pygame.K_a and not movedX:
-                self.facing = "left"
-                self.movex = -CHARACTER_SPEED
-                movedX = True
-            elif key == pygame.K_s and not movedY:
-                self.facing = "front"
-                self.movey = CHARACTER_SPEED
-                movedY = True
-            elif not movedX:
-                self.facing = "right"
-                self.movex = CHARACTER_SPEED
-                movedX = True
-
-            if movedX and movedY:
-                break
-
-        if not movedX:
-            self.movex = 0
-        if not movedY:
-            self.movey = 0
+        # Update layer
+        self._layer = int(self.realRect.top / BLOCK_SIZE)

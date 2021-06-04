@@ -11,14 +11,18 @@ PLAYER_SIZE = (
     2 * BLOCK_SIZE,
     int(round(2.2 * BLOCK_SIZE)),
 )  # Always keeps 200x220 ratio
-ENEMY_SIZE = (62, 100)  # Always keep 62x100 ratio
+ENEMY_SIZE = (
+    int(round(1.5 * BLOCK_SIZE)),
+    int(round(2.4 * BLOCK_SIZE)),
+)  # Always keeps 62x100 ratio
 BAR_HEIGHT = 100
 FONT_SIZE = 50
 BUTTON_SIZE = (30, 30)
 ICON_SIZE = (40, 40)
 
 ENEMY_SAMPLES_COUNT = 4  # Number of different enemy assets
-CHARACTER_SPEED = 7
+PLAYER_SPEED = 7
+MAX_NPC_SPEED = 5
 ANIMATION_REFRESH = 3
 X_PADDING = 20
 NUM_LEVELS = 10

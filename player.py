@@ -11,8 +11,8 @@ class Player(pygame.sprite.Sprite):
     Args:
         pygame ([type]): [description]
     """
-    
-    def __init__(self, parentRect, realStartPos):
+
+    def __init__(self, realStartPos):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.idle_anim = load_animation("doctor_idle", scale=PLAYER_SIZE)
         self.sprint_anim = load_animation("doctor_sprint", scale=PLAYER_SIZE)
@@ -20,13 +20,16 @@ class Player(pygame.sprite.Sprite):
         self.imageCounter = 0
         self.image = self.idle_anim[0]
         self.realRect = pygame.Rect(realStartPos, (BLOCK_SIZE, BLOCK_SIZE))
-        startPos = (realStartPos[0], int(round(0.7 * realStartPos[1])))
-        self.rect = self.idle_anim[0].get_rect().move(startPos)
+        self.rect = self.idle_anim[0].get_rect()
+        self._calcRect()
         self._layer = int(self.realRect.top / BLOCK_SIZE)
         self.realArea = pygame.Rect((0, 0), REAL_GAME_SIZE)
         self.movex = 0
         self.movey = 0
         self.facingRight = True
+
+    def get_layer(self):
+        return self._layer
 
     def _get_middle_value(self, valueList):
         # Returns the the value of a list with length 3, that is neither max nor min
@@ -42,6 +45,10 @@ class Player(pygame.sprite.Sprite):
             self.sprint_anim[i] = pygame.transform.flip(
                 self.sprint_anim[i], True, False
             )
+
+    def _calcRect(self):
+        self.rect.x = self.realRect.x - int(round(0.5 * BLOCK_SIZE))
+        self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
 
     def _handleWallCollisions(self, realWallRects):
         # Handles all possible collisions with stationary game objects
@@ -63,7 +70,7 @@ class Player(pygame.sprite.Sprite):
             # Test assumption
             testCollide = testRect.collidelist(realWallRects)
             testDist = self.realRect.x - testRect.x
-            if testCollide == -1 and -CHARACTER_SPEED <= testDist <= CHARACTER_SPEED:
+            if testCollide == -1 and -PLAYER_SPEED <= testDist <= PLAYER_SPEED:
                 # Assumption was correct and jump distance is in range, use it
                 test1 = self.realRect[0]
                 self.realRect = testRect.copy()
@@ -136,14 +143,10 @@ class Player(pygame.sprite.Sprite):
         self._handleWallCollisions(realWallRects)
 
         # Translate real rect to display rect
-        self.rect.x = self.realRect.x - int(round(0.5 * BLOCK_SIZE))
-        self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
+        self._calcRect()
 
         # Update layer
         self._layer = int(self.realRect.top / BLOCK_SIZE)
-
-    def get_layer(self):
-        return self._layer
 
     def move(self, keys):
         movedY = False
@@ -151,24 +154,24 @@ class Player(pygame.sprite.Sprite):
         # Change Speed of Player according to all pressed keys regarding order, change orientation if necessary
         for key in reversed(keys):
             if key == pygame.K_w and not movedY:
-                self.movey = -CHARACTER_SPEED
+                self.movey = -PLAYER_SPEED
                 movedY = True
             elif key == pygame.K_a and not movedX:
                 # Flip if direction changes
                 if self.facingRight:
                     self._turn()
                     self.facingRight = False
-                self.movex = -CHARACTER_SPEED
+                self.movex = -PLAYER_SPEED
                 movedX = True
             elif key == pygame.K_s and not movedY:
-                self.movey = CHARACTER_SPEED
+                self.movey = PLAYER_SPEED
                 movedY = True
             elif not movedX:
                 # Flip if direction changes
                 if not self.facingRight:
                     self._turn()
                     self.facingRight = True
-                self.movex = CHARACTER_SPEED
+                self.movex = PLAYER_SPEED
                 movedX = True
 
             if movedX and movedY:
