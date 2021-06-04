@@ -1,3 +1,4 @@
+import logging
 import pygame
 from pygame.font import SysFont
 from game import Game
