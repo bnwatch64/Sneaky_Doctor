@@ -4,6 +4,13 @@ from gameConstants import *
 
 
 class Player(pygame.sprite.Sprite):
+    """Player class
+        * player is created
+        * player is controlled by user
+
+    Args:
+        pygame ([type]): [description]
+    """
     def __init__(self, parentSurface):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.idle_anim = load_animation("doctor_idle", scale=PLAYER_SIZE)

@@ -11,6 +11,17 @@ class Menu:
         self.screenSize = screenSize
 
     def create_menu(self):
+        """Create Menu 
+            * pygame_menu module is used 
+            * New Game, Continue, How To Play?, Highscores, Level Selector, Options, Quit buttons are created
+            * First view of user 
+            
+            Args:
+                None
+            
+            Return:
+                None
+        """
         my_theme = pygame_menu.themes.Theme(
             widget_font=pygame_menu.font.FONT_8BIT,
             title_bar_style=pygame_menu.widgets.MENUBAR_STYLE_NONE,

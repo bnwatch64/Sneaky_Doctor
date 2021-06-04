@@ -1,3 +1,9 @@
+"""Sneaky Doctor 
+    authors: Benjamin Ader & Sujan Kanapathipillai
+    date: 02.06.2021
+    license: free
+"""
+
 from menu import Menu
 import pygame
 from gameConstants import *
