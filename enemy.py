@@ -5,6 +5,12 @@ from gameConstants import *
 
 
 class Enemy(pygame.sprite.Sprite):
+    """Enemy class
+        * enemy is created
+
+    Args:
+        pygame (sprite): Sprite class is base class for Enemy class
+    """
     def __init__(self, parentSurface):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.anims = load_enemy_animations(scale=ENEMY_SIZE)
@@ -18,6 +24,15 @@ class Enemy(pygame.sprite.Sprite):
         self.facing = "right"
 
     def update(self):
+        """Update 
+            * Animation of enemy is updated here 
+
+            Args:
+                None
+
+            Return:
+                None
+        """
         # Animate Character
         if self.subFrameCounter == ANIMATION_REFRESH - 1:
             # Increment ImageCounter
@@ -48,6 +63,11 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.bottom = self.area.bottom
 
     def move(self, keys):
+        """Move the enemy
+
+        Args:
+            keys ([type]): [description]
+        """
         movedY = False
         movedX = False
         # Change Speed of Enemy according to all pressed keys regarding order

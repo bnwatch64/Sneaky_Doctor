@@ -1,3 +1,9 @@
+"""Sneaky Doctor 
+    authors: Benjamin Ader & Sujan Kanapathipillai
+    date: 02.06.2021
+    license: free
+"""
+
 import logging
 from menu import Menu
 import pygame
@@ -9,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 # Init game
 logging.info("Initializing pygame...")
 pygame.init()
-logging.info("Initializing  pygame was successfull")
+logging.info("Initializing pygame was successfull")
 screenSize = [GAME_SIZE[0], GAME_SIZE[1] + 2 * BAR_HEIGHT]
 pygame.display.set_mode(screenSize)
 
