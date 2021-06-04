@@ -18,10 +18,10 @@ class Game:
 
     def init_game(self):
         # Load level
-        walls, self.realWallRects, realPlayerStartPosition = load_level(1)
+        walls, self.realWallRects, realPlayerStartPosition = load_level(9)
         self.allsprites.add(walls)
         # Load all NPCs
-        npcPaths, realNpcStartPositions = load_npc_paths(1)
+        npcPaths, realNpcStartPositions = load_npc_paths(9)
         for i in range(0, len(npcPaths)):
             newEnemy = Enemy(realNpcStartPositions[i], npcPaths[i])
             self.npcs.add(newEnemy)

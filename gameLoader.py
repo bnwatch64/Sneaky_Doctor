@@ -98,6 +98,9 @@ def load_npc_paths(levelNum):
     # Load all npc path images, parse the paths and add them to array
     for file in filesList:
         filename = os.fsdecode(file)
+
+        logging.debug("Loading " + filename)
+
         if not filename.startswith("npc"):
             continue
         fullname = os.path.join(levelPath, filename)
@@ -174,7 +177,7 @@ def trace_and_append_pixels(
             if (
                 not (x, y) == pixPos
                 and not (x, y) in ignorePixels
-                and pathData.getpixel((x, y)) == (0, 0, 0, 255)
+                and pathData.getpixel((x, y)) in [(0, 0, 0, 255), (0, 0, 255, 255)]
             ):
                 neighborsPos.append((x, y))
 
