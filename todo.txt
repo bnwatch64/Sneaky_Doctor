@@ -1,8 +1,11 @@
+- Schriftfarben ändern
+- WIN Condition
 - Tests für jede Methode formulieren - Docstrings ausführlich
 - Logger auf info level (Methode rein: Trying to...; raus: ... was successful)
 	- Logging in file, nicht console
 - Readme.md
 - requirements.txt erstellen
+
 
 OPTIONAL:
 
