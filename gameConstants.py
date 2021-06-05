@@ -21,6 +21,8 @@ FONT_SIZE = 50
 BUTTON_SIZE = (30, 30)
 ICON_SIZE = (40, 40)
 
+PROTECT_DURATION = 2.0  # Number of seconds player is protected if mask used
+DYING_DURATION = 2.0  # Number of seconds dying animation is played
 ENEMY_SAMPLES_COUNT = 4  # Number of different enemy assets
 PLAYER_SPEED = 7  # Keep lower than BLOCK_SIZE
 MAX_NPC_SPEED = 5

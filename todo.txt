@@ -1,17 +1,24 @@
-- Enemy Collision
-	- Death Counter erhöhen
-	- Restart level
-- Enemy Speed über Stärke Startpixel
-- Enemy Richtung über blauen Pixel
-
-
 - Tests für jede Methode formulieren - Docstrings ausführlich
-- Exit Perspektive fixen
 - Logger auf info level (Methode rein: Trying to...; raus: ... was successful)
+	- Logging in file, nicht console
+- Readme.md
+- requirements.txt erstellen
 
 OPTIONAL:
-- Player mit Maske assets
+
+Sujan:
+- Icons in einen Ordner (code anpassen)
+- Husten Animation (7 frames, 50x50)
+- Menü Hintergrund (recherchieren, ggf. bild mit 1000x700 erstellen)
+- Sounds aussuchen
+
+Allgemein:
+- Assets Ordnerstruktur verbessern
 - Enemy husten
+- Player mit Maske assets
+- Enemy Speed über Stärke Startpixel
+- Enemy Richtung über blauen Pixel
+- +1 Mask dialog in gameView(!)
 - Sounds
 - How to play
 
@@ -21,9 +28,14 @@ OPTIONAL:
 Solved Tasks:
 - Maske Game Object hinzufügen (collectible)
 	- Asset 50 x 135
-	- Transparent Hintergrund 
+	- Transparent Hintergrund
 	- Schatten + 5 Bilder (40 breit und Höhe gleich)
-
-- Continue ausgrauen bei fehlender save.json 
-	(Button wird nur dann angezeigt, wenn save.json existiert)
-	(Bug: Spielt man ein Level und geht zurück zum Main Menü --> Button Continue existiert nicht!)
+- Continue ausgrauen bei fehlender save.json
+- Enemy Collision
+	- Death Counter erhöhen
+	- Restart level
+	- Immunität wenn Maske
+	- death protection (über konstante in sek) -> player blinkt
+- GameLoader als Klasse umsetzen (nur ein Mal assets laden)
+- Exit Perspektive fixen
+- Death Animation

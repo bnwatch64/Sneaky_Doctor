@@ -16,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.idle_anim = load_animation("doctor_idle", scale=PLAYER_SIZE)
         self.sprint_anim = load_animation("doctor_sprint", scale=PLAYER_SIZE)
+        self.death_anim = load_animation("doctor_death", scale=PLAYER_SIZE)
         self.subFrameCounter = 0
         self.imageCounter = 0
         self.image = self.idle_anim[0]
@@ -27,9 +28,8 @@ class Player(pygame.sprite.Sprite):
         self.movex = 0
         self.movey = 0
         self.facingRight = True
-
-    def get_layer(self):
-        return self._layer
+        self.deathProtectCounter = 0
+        self.dyingCounter = 0
 
     def _get_middle_value(self, valueList):
         # Returns the the value of a list with length 3, that is neither max nor min
@@ -38,13 +38,17 @@ class Player(pygame.sprite.Sprite):
         return valueList[0]
 
     def _turn(self):
-        # Horizontaly flips all images
+        # Horizontaly flips all images if player isn't dying
+        if self.dyingCounter:
+            return
         for i in range(0, len(self.idle_anim)):
             self.idle_anim[i] = pygame.transform.flip(self.idle_anim[i], True, False)
         for i in range(0, len(self.sprint_anim)):
             self.sprint_anim[i] = pygame.transform.flip(
                 self.sprint_anim[i], True, False
             )
+        for i in range(0, len(self.death_anim)):
+            self.death_anim[i] = pygame.transform.flip(self.death_anim[i], True, False)
 
     def _calcRect(self):
         self.rect.x = self.realRect.x - int(round(0.5 * BLOCK_SIZE))
@@ -104,49 +108,18 @@ class Player(pygame.sprite.Sprite):
                 cornerRect = realWallRects[cornerIdx]
                 self.realRect.topleft = cornerRect.bottomright
 
-    def update(self, realWallRects):
-        # Animate Character
-        if self.subFrameCounter == ANIMATION_REFRESH - 1:
-            # Increment ImageCounter
-            newImageCount = self.imageCounter + 1
-            if newImageCount >= len(self.idle_anim):
-                newImageCount = 0
-            self.imageCounter = newImageCount
+    def get_layer(self):
+        return self._layer
 
-            # Set new Image
-            if self.movex == 0 and self.movey == 0:
-                self.image = self.idle_anim[self.imageCounter]
-            else:
-                self.image = self.sprint_anim[self.imageCounter]
+    def deathProtect(self):
+        # Activate death protect for specified duration
+        self.deathProtectCounter = int(round(PROTECT_DURATION * FRAMERATE))
 
-            # Reset SubFrameCounter
-            self.subFrameCounter = 0
-        else:
-            self.subFrameCounter += 1
-
-        # Move Character
-        newRealPos = self.realRect.move((self.movex, self.movey))
-        self.realRect = newRealPos
-
-        # Keep character in bounds
-        if not self.realArea.contains(newRealPos):
-            if self.realRect.left < self.realArea.left:
-                self.realRect.left = self.realArea.left
-            if self.realRect.right > self.realArea.right:
-                self.realRect.right = self.realArea.right
-            if self.realRect.top < self.realArea.top:
-                self.realRect.top = self.realArea.top
-            if self.realRect.bottom > self.realArea.bottom:
-                self.realRect.bottom = self.realArea.bottom
-
-        # Handle wall collisions
-        self._handleWallCollisions(realWallRects)
-
-        # Translate real rect to display rect
-        self._calcRect()
-
-        # Update layer
-        self._layer = int(self.realRect.top / BLOCK_SIZE)
+    def die(self):
+        # Play dying animation
+        self.dyingCounter = int(round(DYING_DURATION * FRAMERATE))
+        self.subFrameCounter = 0
+        self.imageCounter = 0
 
     def move(self, keys):
         movedY = False
@@ -181,3 +154,66 @@ class Player(pygame.sprite.Sprite):
             self.movex = 0
         if not movedY:
             self.movey = 0
+
+    def update(self, realWallRects):
+        # Animate Character
+        if self.subFrameCounter == ANIMATION_REFRESH - 1:
+            # Increment ImageCounter
+            newImageCount = self.imageCounter + 1
+            if newImageCount >= len(self.idle_anim):
+                if self.dyingCounter:
+                    newImageCount = self.imageCounter
+                else:
+                    newImageCount = 0
+            self.imageCounter = newImageCount
+
+            # Set new Image
+            if self.dyingCounter:
+                self.image = self.death_anim[self.imageCounter]
+            elif self.movex == 0 and self.movey == 0:
+                self.image = self.idle_anim[self.imageCounter]
+            else:
+                self.image = self.sprint_anim[self.imageCounter]
+
+            # Reset SubFrameCounter
+            self.subFrameCounter = 0
+        else:
+            self.subFrameCounter += 1
+
+        # Check if already dying
+        if self.dyingCounter:
+            # If yes, decrement counter and skip movement etc.
+            self.dyingCounter = self.dyingCounter - 1
+            return
+
+        # Move Character
+        newRealPos = self.realRect.move((self.movex, self.movey))
+        self.realRect = newRealPos
+
+        # Keep character in bounds
+        if not self.realArea.contains(newRealPos):
+            if self.realRect.left < self.realArea.left:
+                self.realRect.left = self.realArea.left
+            if self.realRect.right > self.realArea.right:
+                self.realRect.right = self.realArea.right
+            if self.realRect.top < self.realArea.top:
+                self.realRect.top = self.realArea.top
+            if self.realRect.bottom > self.realArea.bottom:
+                self.realRect.bottom = self.realArea.bottom
+
+        # Handle wall collisions
+        self._handleWallCollisions(realWallRects)
+
+        # Translate real rect to display rect
+        self._calcRect()
+
+        # Update layer
+        self._layer = int(self.realRect.top / BLOCK_SIZE)
+
+        # Decrement protect counter if greater 0
+        if self.deathProtectCounter:
+            self.deathProtectCounter = self.deathProtectCounter - 1
+
+        # Let character blink if he is protected
+        if (self.deathProtectCounter % 8) in range(5, 8):
+            self.image = pygame.Surface((0, 0))

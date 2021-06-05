@@ -6,8 +6,6 @@ import random
 from gameConstants import *
 
 
-
-
 def load_animation(folder, scale=None, colorkey=None):
     directory = os.path.join(ASSETS_LOCATION, folder)
 
@@ -120,6 +118,7 @@ def save_game(gameStats):
         jsonString = json.dumps(gameStats)
         saveFile.write(jsonString)
 
+
 def check_save_file_exists():
-        saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
-        return os.path.exists(saveFilePath)
+    saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
+    return os.path.exists(saveFilePath)
