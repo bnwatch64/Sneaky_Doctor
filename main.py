@@ -10,8 +10,8 @@ import pygame
 from gameConstants import *
 
 
-# Configure debugger
-logging.basicConfig(level=logging.DEBUG)
+# Configure logger
+logging.basicConfig(level=logging.INFO)
 # Init game
 logging.info("Initializing pygame...")
 pygame.init()

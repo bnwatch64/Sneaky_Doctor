@@ -3,13 +3,27 @@
 	- Restart level
 - Enemy Speed über Stärke Startpixel
 - Enemy Richtung über blauen Pixel
-- Maske Game Object hinzufügen (collectible)
-- Continue ausgrauen bei fehlender save.json
+
+
 - Tests für jede Methode formulieren - Docstrings ausführlich
 - Exit Perspektive fixen
+- Logger auf info level (Methode rein: Trying to...; raus: ... was successful)
 
 OPTIONAL:
 - Player mit Maske assets
 - Enemy husten
 - Sounds
 - How to play
+
+
+
+
+Solved Tasks:
+- Maske Game Object hinzufügen (collectible)
+	- Asset 50 x 135
+	- Transparent Hintergrund 
+	- Schatten + 5 Bilder (40 breit und Höhe gleich)
+
+- Continue ausgrauen bei fehlender save.json 
+	(Button wird nur dann angezeigt, wenn save.json existiert)
+	(Bug: Spielt man ein Level und geht zurück zum Main Menü --> Button Continue existiert nicht!)

@@ -8,6 +8,18 @@ from gameConstants import *
 
 
 class GameView:
+    """Game View Creation
+        * Class draws the UI within the game (top, bottom bars, icons within bars)
+        * Handles the user input during game 
+        * Updates the bars after a change 
+
+        Public Methods:
+            * def game_loop(self)
+            * def updateGameStats(self, playingMusicChanged=False) 
+            * def drawBars(self)
+
+
+    """
     def __init__(self, newGame):
         if not newGame:
             # Load game from save file if not newGame
@@ -31,16 +43,20 @@ class GameView:
 
     def game_loop(self):
         """Game loop
-        * Background sound is set here
-        * Game screen is drawn
-        * while loop handles the events
-        * Changed areas on screen are updated
+            * Background sound is set here
+            * Game screen is drawn
+            * while loop handles the events
+            * Changed areas on screen are updated
 
         Args:
             None
 
         Return:
             None
+
+        Test: 
+            * w, a, s, d, esc buttons have functionality 
+            * while loop interrupted when clicking on home icon
         """
 
         # Setup display of game
@@ -129,8 +145,12 @@ class GameView:
         Args:
             playingMusicChanged (bool, optional): Determines whether playingMusic icon should be updated
 
-        Returns:
+        Return:
             (list): List of dirty rects from info bar updates
+
+        Test:
+            * Values in Top and Bottom bars drawn with updated game stats
+            * Only the changed areas within bars are updated not the full area of both bars
         """
 
         if self.gameStats != self.game.gameStats:
@@ -160,7 +180,19 @@ class GameView:
         * Top and bottom bars are drawn
         * At beginning of this function both bars are resetted
         * All icons and text fields within the bars are drawn here through blit function
+
+        Args:
+            None
+
+        Return: 
+            None
+
+        Test: 
+            * Top and Bottom bars created (UI testing)
+            * Home and speaker icon clickable 
         """
+
+        logging.info("Drawing info bars...")
         self.screen.fill(BAR_COLOR, (0, 0, GAME_SIZE[0], BAR_HEIGHT))
         self.screen.fill(
             BAR_COLOR, (0, BAR_HEIGHT + GAME_SIZE[1], GAME_SIZE[0], BAR_HEIGHT)
@@ -256,3 +288,4 @@ class GameView:
                 BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectNumDeath.height) / 2,
             ),
         )
+        logging.info("Drawing info bars was successful")
