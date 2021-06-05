@@ -114,8 +114,11 @@ class GameView:
 
             # Load new level if win
             if self.game.checkWin():
-                self.gameStats["currentLvl"] = self.gameStats["currentLvl"] + 1
-                self.game = Game(self.gameStats, self.game.pressedKeys)
+                newGameStats = self.game.gameStats.copy()
+                newGameStats["currentLvl"] = self.game.gameStats["currentLvl"] + 1
+                self.game = Game(newGameStats, self.game.pressedKeys)
+                self.screen.blit(self.game.screen, (0, BAR_HEIGHT))
+                pygame.display.flip()
 
         save_game(self.gameStats)
 
@@ -164,29 +167,29 @@ class GameView:
         )
 
         # Level information
-        # levelText = pygame.font.SysFont("None", FONT_SIZE)
-        # textImg = levelText.render(
-        #     f"Level: {self.gameStats["currentLvl"]}/{NUM_LEVELS}", False, (0, 0, 0)
-        # )
-        # rect = textImg.get_rect()
-        # pygame.draw.rect(textImg, (255, 255, 255, 128), rect, 1)
-        # self.screen.blit(
-        #     textImg, ((GAME_SIZE[0] - rect[2]) / 2, (BAR_HEIGHT - rect.height) / 2)
-        # )
+        levelText = pygame.font.SysFont("None", FONT_SIZE)
+        textImg = levelText.render(
+            f"Level: {self.gameStats['currentLvl']}/{NUM_LEVELS}", False, (0, 0, 0)
+        )
+        rect = textImg.get_rect()
+        pygame.draw.rect(textImg, (255, 255, 255, 128), rect, 1)
+        self.screen.blit(
+            textImg, ((GAME_SIZE[0] - rect[2]) / 2, (BAR_HEIGHT - rect.height) / 2)
+        )
 
         # Home icon
-        rectHome = pygame.Rect(
+        self.rectHome = pygame.Rect(
             X_PADDING,
             (BAR_HEIGHT - self.homeIconImg.get_height()) / 2,
             BUTTON_SIZE[0],
             BUTTON_SIZE[1],
         )
         self.screen.blit(
-            self.homeIconImg, (X_PADDING, (BAR_HEIGHT - rectHome.height) / 2)
+            self.homeIconImg, (X_PADDING, (BAR_HEIGHT - self.rectHome.height) / 2)
         )
 
         # Speaker Icon
-        rectSpeaker = pygame.Rect(
+        self.rectSpeaker = pygame.Rect(
             GAME_SIZE[0] - 2 * X_PADDING,
             (BAR_HEIGHT - self.homeIconImg.get_height()) / 2,
             BUTTON_SIZE[0],
@@ -198,7 +201,7 @@ class GameView:
                 self.speakerIconImg,
                 (
                     GAME_SIZE[0] - 2 * X_PADDING,
-                    (BAR_HEIGHT - rectSpeaker.height) / 2,
+                    (BAR_HEIGHT - self.rectSpeaker.height) / 2,
                 ),
             )
 
@@ -207,7 +210,7 @@ class GameView:
                 self.speakerMuteIconImg,
                 (
                     GAME_SIZE[0] - 2 * X_PADDING,
-                    (BAR_HEIGHT - rectSpeaker.height) / 2,
+                    (BAR_HEIGHT - self.rectSpeaker.height) / 2,
                 ),
             )
 
@@ -219,17 +222,17 @@ class GameView:
         )
 
         # Mask Text
-        # numMaskText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
-        # textImgMask = numMaskText.render(f": {self.gameStats["maskCount"]}", False, (0, 0, 0))
-        # rectNum = textImgMask.get_rect()
-        # pygame.draw.rect(textImgMask, (255, 255, 255, 128), rectNum, 1)
-        # self.screen.blit(
-        #     textImgMask,
-        #     (
-        #         1.5 * X_PADDING + rectMask.width,
-        #         BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectMask.height) / 2,
-        #     ),
-        # )
+        numMaskText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
+        textImgMask = numMaskText.render(f": {self.gameStats['maskCount']}", False, (0, 0, 0))
+        rectNum = textImgMask.get_rect()
+        pygame.draw.rect(textImgMask, (255, 255, 255, 128), rectNum, 1)
+        self.screen.blit(
+            textImgMask,
+            (
+                1.5 * X_PADDING + rectMask.width,
+                BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectMask.height) / 2,
+            ),
+        )
 
         # Scull Icon
         rectScull = self.scullIconImg.get_rect()
@@ -242,14 +245,14 @@ class GameView:
         )
 
         # Death Text
-        # numDeathText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
-        # textImgDeath = numDeathText.render(f": {self.gameStats["deathCount"]}", False, (0, 0, 0))
-        # rectNumDeath = textImgDeath.get_rect()
-        # pygame.draw.rect(textImgDeath, (255, 255, 255, 128), rectNum, 1)
-        # self.screen.blit(
-        #     textImgDeath,
-        #     (
-        #         GAME_SIZE[0] - 3 * X_PADDING,
-        #         BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectNumDeath.height) / 2,
-        #     ),
-        # )
+        numDeathText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
+        textImgDeath = numDeathText.render(f": {self.gameStats['deathCount']}", False, (0, 0, 0))
+        rectNumDeath = textImgDeath.get_rect()
+        pygame.draw.rect(textImgDeath, (255, 255, 255, 128), rectNum, 1)
+        self.screen.blit(
+            textImgDeath,
+            (
+                GAME_SIZE[0] - 3 * X_PADDING,
+                BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectNumDeath.height) / 2,
+            ),
+        )
