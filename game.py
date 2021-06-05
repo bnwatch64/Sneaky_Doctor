@@ -9,19 +9,23 @@ from gameConstants import *
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, gameStats, pressedKeys=[]):
+        # Init attributes
         self.screen = pygame.Surface(GAME_SIZE)
-        self.pressedKeys = []
-        self.floor = pygame.Surface(GAME_SIZE)
+        self.pressedKeys = pressedKeys
         self.allsprites = pygame.sprite.LayeredUpdates()
         self.npcs = pygame.sprite.Group()
-
-    def init_game(self):
+        self.gameStats = gameStats.copy()
         # Load level
-        walls, self.realWallRects, realPlayerStartPosition = load_level(9)
+        (
+            walls,
+            self.realWallRects,
+            realPlayerStartPosition,
+            self.realExitRect,
+        ) = load_level(gameStats["currentLvl"])
         self.allsprites.add(walls)
         # Load all NPCs
-        npcPaths, realNpcStartPositions = load_npc_paths(9)
+        npcPaths, realNpcStartPositions = load_npc_paths(gameStats["currentLvl"])
         for i in range(0, len(npcPaths)):
             newEnemy = Enemy(realNpcStartPositions[i], npcPaths[i])
             self.npcs.add(newEnemy)
@@ -30,8 +34,16 @@ class Game:
         self.player = Player(realPlayerStartPosition)
         self.allsprites.add(self.player)
         # Create floor (background)
+        self.floor = pygame.Surface(GAME_SIZE)
         self.floor.fill(FLOOR_COLOR)
         self.screen.blit(self.floor, (0, 0))
+
+    def checkWin(self):
+        # Check if player reached exit
+        if self.realExitRect.contains(self.player.realRect):
+            return True
+        else:
+            return False
 
     def update_game(self):
         # Update movement based on pressed keys

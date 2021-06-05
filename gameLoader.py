@@ -42,6 +42,7 @@ def load_level(levelNum):
     wallSprites = []
     realWallRects = []
     realStartPos = None
+    realExitRect = None
 
     # Loop over every pixel
     for i, pix in enumerate(levelData):
@@ -57,20 +58,25 @@ def load_level(levelNum):
         if pix == (0, 255, 0, 255):
             x = i % 32
             y = int(i / 32)
-            realExitPosition = (x * BLOCK_SIZE, y * BLOCK_SIZE)
-            exit = GameObject(exitAsset, realExitPosition)
+            realExitPos = (x * BLOCK_SIZE, y * BLOCK_SIZE)
+            exit = GameObject(exitAsset, realExitPos)
             wallSprites.append(exit)
+            realExitRect = pygame.Rect(realExitPos, (BLOCK_SIZE, BLOCK_SIZE))
         # If map pixel is blue, set player start position
         elif pix == (0, 0, 255, 255):
             x = i % 32
             y = int(i / 32)
             realStartPos = [c * BLOCK_SIZE for c in [x, y]]
 
-    # Check if start pixel was found, abort if not
+    # Check if start (blue) pixel was found, abort if not
     if realStartPos == None:
         logging.error(
-            "Level " + str(levelNum) + " has no starting (blue) pixel for player"
+            "Level " + str(levelNum) + " map has no starting (blue) pixel for player"
         )
+        raise SystemExit("Map Parse Error")
+    # Check if exit (green) pixel was found, abort if not
+    if realStartPos == None:
+        logging.error("Level " + str(levelNum) + " map has no exit (green) pixel")
         raise SystemExit("Map Parse Error")
 
     # Close level map image
@@ -78,7 +84,7 @@ def load_level(levelNum):
 
     logging.info("Loading level " + str(levelNum) + " from image file was successful")
 
-    return wallSprites, realWallRects, realStartPos
+    return wallSprites, realWallRects, realStartPos, realExitRect
 
 
 def load_npc_paths(levelNum):

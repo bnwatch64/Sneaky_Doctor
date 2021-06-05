@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 import pygame
 import random
 from gameConstants import *
@@ -23,7 +24,7 @@ def load_animation(folder, scale=None, colorkey=None):
         try:
             image = pygame.image.load(fullname)
         except pygame.error as message:
-            print("Cannot load image:", filename)
+            logging.error("Cannot load image: " + filename)
             raise SystemExit(message)
         if scale is not None:
             image = pygame.transform.scale(image, scale)
@@ -63,7 +64,7 @@ def load_enemy_animations(scale=None, colorkey=None):
             try:
                 image = pygame.image.load(fullname)
             except pygame.error as message:
-                print("Cannot load image:", filename)
+                logging.error("Cannot load image: " + filename)
                 raise SystemExit(message)
             if scale is not None:
                 image = pygame.transform.scale(image, scale)
@@ -78,13 +79,12 @@ def load_enemy_animations(scale=None, colorkey=None):
     return animsDict
 
 
-# functions to create our resources
 def load_image(name, scale=None, colorkey=None):
     fullname = os.path.join(ASSETS_LOCATION, name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error as message:
-        print("Cannot load image:", name)
+        logging.error("Cannot load image: " + name)
         raise SystemExit(message)
     if scale is not None:
         image = pygame.transform.scale(image, scale)
@@ -101,5 +101,19 @@ def load_sound(filename):
     try:
         sound = pygame.mixer.music.load(fullname)
     except pygame.error as message:
-        print("Cannot load sound:", filename)
+        logging.error("Cannot load sound: " + filename)
         raise SystemExit(message)
+
+
+def load_game_save():
+    saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
+    with open(saveFilePath, "r") as saveFile:
+        jsonString = saveFile.read()
+    return json.loads(jsonString)
+
+
+def save_game(gameStats):
+    saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
+    with open(saveFilePath, "w") as saveFile:
+        jsonString = json.dumps(gameStats)
+        saveFile.write(jsonString)

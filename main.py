@@ -1,4 +1,4 @@
-"""Sneaky Doctor 
+"""Sneaky Doctor
     authors: Benjamin Ader & Sujan Kanapathipillai
     date: 02.06.2021
     license: free
@@ -16,9 +16,8 @@ logging.basicConfig(level=logging.DEBUG)
 logging.info("Initializing pygame...")
 pygame.init()
 logging.info("Initializing pygame was successfull")
-screenSize = [GAME_SIZE[0], GAME_SIZE[1] + 2 * BAR_HEIGHT]
-pygame.display.set_mode(screenSize)
+pygame.display.set_mode(SCREEN_SIZE)
 
 # Run game menu
-main_menu = Menu(screenSize)
+main_menu = Menu()
 main_menu.create_menu()

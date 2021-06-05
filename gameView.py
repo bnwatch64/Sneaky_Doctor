@@ -1,20 +1,22 @@
 import logging
 import pygame
 from pygame.font import SysFont
+import os
 from game import Game
+from loadsources import load_image, load_sound, load_game_save, save_game
 from gameConstants import *
-from loadsources import *
-
-
-# Dummy variables
-changedLvl = 4
-numMasks = 100
-numDeaths = 20
 
 
 class GameView:
-    def __init__(self, screenSize):
-        self.game = Game()
+    def __init__(self, newGame):
+        if not newGame:
+            # Load game from save file if not newGame
+            self.gameStats = load_game_save()
+        else:
+            # Create new game else
+            self.gameStats = {"currentLvl": 1, "maskCount": 0, "deathCount": 0}
+        # Create game object
+        self.game = Game(self.gameStats)
         self.screen = pygame.display.get_surface()
         self.caption = pygame.display.set_caption("Sneaky Doctor")
         self.clock = pygame.time.Clock()
@@ -25,6 +27,7 @@ class GameView:
         )
         self.scullIconImg, _ = load_image("skull_bar.png", scale=ICON_SIZE)
         self.maskIconImg, _ = load_image("corona_mask.png", scale=ICON_SIZE)
+        self.playingMusic = True
 
     def game_loop(self):
         """Game loop
@@ -39,19 +42,22 @@ class GameView:
         Return:
             None
         """
-        self.game.init_game()
-        self.drawBars(changedLvl)
+
+        # Setup display of game
+        self.drawBars()
         self.screen.blit(self.game.screen, (0, BAR_HEIGHT))
         pygame.display.flip()
+        # Setup sound
         load_sound("music.wav.mid")
         pygame.mixer.music.play(-1)
-        musicplayer = True
 
+        # Start game loop
         going = True
         while going:
             self.clock.tick(FRAMERATE)
 
-            # Callback for the house icon
+            playingMusicChanged = False
+            # Input handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.mixer.music.stop()
@@ -86,62 +92,71 @@ class GameView:
 
                     elif self.rectSpeaker.collidepoint(mouse_pos):
 
-                        if musicplayer:
+                        if self.playingMusic:
                             pygame.mixer.music.stop()
 
                         else:
                             pygame.mixer.music.play(-1)
 
-                        musicplayer = not musicplayer
+                        self.playingMusic = not self.playingMusic
+                        playingMusicChanged = True
 
+            # Update the game
             gameDirtyAreas = self.game.update_game()
             screenDirtyAreas = [x.move(0, BAR_HEIGHT) for x in gameDirtyAreas]
             self.screen.blit(self.game.screen, (0, BAR_HEIGHT))
-
-            rectListDirty = self.updateBars(changedLvl, musicplayer)
-            for rectDirty in rectListDirty:
-                screenDirtyAreas.append(rectDirty)
+            # Update the information bars
+            barsDirtyAreas = self.updateGameStats(playingMusicChanged)
+            screenDirtyAreas.extend(barsDirtyAreas)
 
             # Update the display
             pygame.display.update(screenDirtyAreas)
 
-    def updateBars(self, currentLvl, musicplayer=None):
-        """Update bars
-            * Top and bottom bars are updated after change
+            # Load new level if win
+            if self.game.checkWin():
+                self.gameStats["currentLvl"] = self.gameStats["currentLvl"] + 1
+                self.game = Game(self.gameStats, self.game.pressedKeys)
+
+        save_game(self.gameStats)
+
+    def updateGameStats(self, playingMusicChanged=False):
+        """Update game stats
+            * Local gameStats and info bars are updated if game stats changed
 
         Args:
-            currentLvl (int): Changed game level
-            musicplayer (bool, optional): Clicking on speaker icon changes musicplayer boolean. Defaults to None.
+            playingMusicChanged (bool, optional): Determines whether playingMusic icon should be updated
 
         Returns:
-            (list): List of rects which were changed
-
-        # TODO: if condition has to be defined properly
+            (list): List of dirty rects from info bar updates
         """
 
-        if currentLvl != changedLvl:
-            self.drawBars(currentLvl)
-            return pygame.Rect(0, 0, GAME_SIZE[0], BAR_HEIGHT), pygame.Rect(
-                0, BAR_HEIGHT + GAME_SIZE[1], GAME_SIZE[0], BAR_HEIGHT
-            )
+        if self.gameStats != self.game.gameStats:
+            # If gameStats changed, update them
+            self.gameStats = self.game.gameStats.copy()
+            # Redraw info bars
+            self.drawBars()
+            # Return new dirty areas from bars
+            return [
+                pygame.Rect(0, 0, GAME_SIZE[0], BAR_HEIGHT),
+                pygame.Rect(0, BAR_HEIGHT + GAME_SIZE[1], GAME_SIZE[0], BAR_HEIGHT),
+            ]
 
-        elif musicplayer == True or musicplayer == False:
-            self.drawBars(currentLvl, musicplayer)
+        elif playingMusicChanged:
+            # If music player changed, update bars
+            self.drawBars()
+            # Return new dirty area from top bar
             return [pygame.Rect(0, 0, GAME_SIZE[0], BAR_HEIGHT)]
 
         else:
+            # If there are no changes, return no new dirty areas
             return []
 
     # TODO: Size of icon/Schrift abhängig von BarHeight
-    def drawBars(self, currentLvl, musicplayer=True):
+    def drawBars(self):
         """Draw bars
-            * Top and bottom bars are drawn
-            * At beginning of this function both bars are resetted
-            * All icons and text fields within the bars are drawn here through blit function
-
-        Args:
-            currentLvl (int): Changed game level
-            musicplayer (bool, optional): Clicking on speaker icon changes musicplayer boolean. Defaults to True.
+        * Top and bottom bars are drawn
+        * At beginning of this function both bars are resetted
+        * All icons and text fields within the bars are drawn here through blit function
         """
         self.screen.fill(BAR_COLOR, (0, 0, GAME_SIZE[0], BAR_HEIGHT))
         self.screen.fill(
@@ -151,7 +166,7 @@ class GameView:
         # Level information
         # levelText = pygame.font.SysFont("None", FONT_SIZE)
         # textImg = levelText.render(
-        #     f"Level: {currentLvl}/{NUM_LEVELS}", False, (0, 0, 0)
+        #     f"Level: {self.gameStats["currentLvl"]}/{NUM_LEVELS}", False, (0, 0, 0)
         # )
         # rect = textImg.get_rect()
         # pygame.draw.rect(textImg, (255, 255, 255, 128), rect, 1)
@@ -160,30 +175,30 @@ class GameView:
         # )
 
         # Home icon
-        self.rectHome = pygame.Rect(
+        rectHome = pygame.Rect(
             X_PADDING,
             (BAR_HEIGHT - self.homeIconImg.get_height()) / 2,
             BUTTON_SIZE[0],
             BUTTON_SIZE[1],
         )
         self.screen.blit(
-            self.homeIconImg, (X_PADDING, (BAR_HEIGHT - self.rectHome.height) / 2)
+            self.homeIconImg, (X_PADDING, (BAR_HEIGHT - rectHome.height) / 2)
         )
 
         # Speaker Icon
-        self.rectSpeaker = pygame.Rect(
+        rectSpeaker = pygame.Rect(
             GAME_SIZE[0] - 2 * X_PADDING,
             (BAR_HEIGHT - self.homeIconImg.get_height()) / 2,
             BUTTON_SIZE[0],
             BUTTON_SIZE[1],
         )
 
-        if musicplayer:
+        if self.playingMusic:
             self.screen.blit(
                 self.speakerIconImg,
                 (
                     GAME_SIZE[0] - 2 * X_PADDING,
-                    (BAR_HEIGHT - self.rectSpeaker.height) / 2,
+                    (BAR_HEIGHT - rectSpeaker.height) / 2,
                 ),
             )
 
@@ -192,7 +207,7 @@ class GameView:
                 self.speakerMuteIconImg,
                 (
                     GAME_SIZE[0] - 2 * X_PADDING,
-                    (BAR_HEIGHT - self.rectSpeaker.height) / 2,
+                    (BAR_HEIGHT - rectSpeaker.height) / 2,
                 ),
             )
 
@@ -205,7 +220,7 @@ class GameView:
 
         # Mask Text
         # numMaskText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
-        # textImgMask = numMaskText.render(f": {numMasks}", False, (0, 0, 0))
+        # textImgMask = numMaskText.render(f": {self.gameStats["maskCount"]}", False, (0, 0, 0))
         # rectNum = textImgMask.get_rect()
         # pygame.draw.rect(textImgMask, (255, 255, 255, 128), rectNum, 1)
         # self.screen.blit(
@@ -228,7 +243,7 @@ class GameView:
 
         # Death Text
         # numDeathText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
-        # textImgDeath = numDeathText.render(f": {numDeaths}", False, (0, 0, 0))
+        # textImgDeath = numDeathText.render(f": {self.gameStats["deathCount"]}", False, (0, 0, 0))
         # rectNumDeath = textImgDeath.get_rect()
         # pygame.draw.rect(textImgDeath, (255, 255, 255, 128), rectNum, 1)
         # self.screen.blit(

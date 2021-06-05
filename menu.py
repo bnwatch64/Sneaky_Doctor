@@ -6,22 +6,26 @@ from gameConstants import *
 
 
 class Menu:
-    def __init__(self, screenSize):
-        self.gameView = GameView(screenSize)
+    def __init__(self):
+        self.gameView = None
         self.screen = pygame.display.get_surface()
-        self.screenSize = screenSize
+
+    def _start_game(self, newGame=False):
+        self.gameView = GameView(newGame)
+        self.gameView.game_loop()
+        self.gameView = None
 
     def create_menu(self):
-        """Create Menu 
-            * pygame_menu module is used 
-            * New Game, Continue, How To Play?, Highscores, Level Selector, Options, Quit buttons are created
-            * First view of user 
-            
-            Args:
-                None
-            
-            Return:
-                None
+        """Create Menu
+        * pygame_menu module is used
+        * New Game, Continue, How To Play?, Highscores, Level Selector, Options, Quit buttons are created
+        * First view of user
+
+        Args:
+            None
+
+        Return:
+            None
         """
 
         logging.info("Initializing Menu...")
@@ -31,12 +35,10 @@ class Menu:
             background_color=(0, 0, 0),
         )
         menu = pygame_menu.Menu(
-            "Sneaky Doctor", self.screenSize[0], self.screenSize[1], theme=my_theme
+            "Sneaky Doctor", SCREEN_SIZE[0], SCREEN_SIZE[1], theme=my_theme
         )
-        menu.add.button("New Game", self.gameView.game_loop)
-        menu.add.button(
-            "Continue",
-        )
+        menu.add.button("Continue", self._start_game)
+        menu.add.button("New Game", self._start_game, True)
         menu.add.button("How To Play?")
         menu.add.button("Highscores")
         menu.add.button("Level Selector")
