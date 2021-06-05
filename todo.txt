@@ -1,0 +1,15 @@
+- Enemy Collision
+	- Death Counter erhöhen
+	- Restart level
+- Enemy Speed über Stärke Startpixel
+- Enemy Richtung über blauen Pixel
+- Maske Game Object hinzufügen (collectible)
+- Continue ausgrauen bei fehlender save.json
+- Tests für jede Methode formulieren - Docstrings ausführlich
+- Exit Perspektive fixen
+
+OPTIONAL:
+- Player mit Maske assets
+- Enemy husten
+- Sounds
+- How to play
