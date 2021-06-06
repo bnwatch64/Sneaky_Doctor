@@ -122,3 +122,16 @@ def save_game(gameStats):
 def check_save_file_exists():
     saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
     return os.path.exists(saveFilePath)
+
+
+def delete_game_save():
+    saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
+    os.remove(saveFilePath)
+    # Wait for file deletion
+    while os.path.exists(levelPath):
+        sleep(0.0001)
+
+
+def check_level_exists(levelNum):
+    levelPath = os.path.join(ASSETS_LOCATION, LEVEL_LOCATION, "level_" + str(levelNum))
+    return os.path.exists(levelPath)

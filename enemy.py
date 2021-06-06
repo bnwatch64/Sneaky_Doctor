@@ -70,7 +70,7 @@ class Enemy(pygame.sprite.Sprite):
         self.realRect.update(newRealPos, self.realRect.size)
 
         # Animate Character
-        if self.subFrameCounter == ANIMATION_REFRESH - 1:
+        if self.subFrameCounter == 2 * ANIMATION_REFRESH - 1:
             # Increment ImageCounter
             newImageCount = self.imageCounter + 1
             if newImageCount >= len(self.anims[self.facing]):

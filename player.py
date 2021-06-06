@@ -187,6 +187,9 @@ class Player(pygame.sprite.Sprite):
             return
 
         # Move Character
+        if not self.movex == 0 and not self.movey == 0:
+            self.movex = round(int(self.movex / 1.4))
+            self.movey = round(int(self.movey / 1.4))
         newRealPos = self.realRect.move((self.movex, self.movey))
         self.realRect = newRealPos
 

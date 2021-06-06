@@ -1,19 +1,10 @@
-- Schriftfarben ändern
-- WIN Condition
 - Tests für jede Methode formulieren - Docstrings ausführlich
 - Logger auf info level (Methode rein: Trying to...; raus: ... was successful)
 	- Logging in file, nicht console
 - Readme.md
-- requirements.txt erstellen
 
 
 OPTIONAL:
-
-Sujan:
-
-
-Allgemein:
-- Assets Ordnerstruktur verbessern
 - Enemy husten
 - Player mit Maske assets
 - Enemy Speed über Stärke Startpixel
@@ -44,3 +35,7 @@ Solved Tasks:
 - Icons in einen Ordner (code anpassen)
 - Husten Animation (7 frames, 50x50)
 - Menü Hintergrund (recherchieren, ggf. bild mit 1000x700 erstellen)
+- Assets Ordnerstruktur verbessern
+- Schriftfarben ändern
+- WIN Condition
+- requirements.txt erstellen

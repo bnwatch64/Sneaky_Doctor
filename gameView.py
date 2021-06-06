@@ -4,7 +4,7 @@ from pygame.font import SysFont
 import os
 from game import Game
 from gameLoader import GameLoader
-from loadsources import load_image, load_sound, load_game_save, save_game
+from loadsources import *
 from gameConstants import *
 
 
@@ -42,7 +42,44 @@ class GameView:
         )
         self.scullIconImg, _ = load_image("icons/skull_bar.png", scale=ICON_SIZE)
         self.maskIconImg, _ = load_image("icons/corona_mask.png", scale=ICON_SIZE)
+        self.winGameAnim = load_animation("win_anim", scale=GAME_SIZE)
         self.playingMusic = True
+
+    def _winGame(self):
+        going = True
+        imageCounter = 0
+        winAnimPos = (0, BAR_HEIGHT)
+        while going:
+            self.clock.tick(int(round(FRAMERATE / ANIMATION_REFRESH)))
+
+            # Check game close conditions
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.mixer.music.stop()
+                    going = False
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    pygame.mixer.music.stop()
+                    going = False
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    pygame.mixer.music.stop()
+                    going = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if self.rectHome.collidepoint(mouse_pos):
+                        pygame.mixer.music.stop()
+                        going = False
+
+            # Increment ImageCounter
+            newImageCount = imageCounter + 1
+            if newImageCount >= len(self.winGameAnim):
+                newImageCount = 0
+            imageCounter = newImageCount
+
+            # Blit new Image
+            self.screen.blit(self.winGameAnim[imageCounter], winAnimPos)
+            pygame.display.update(
+                [(winAnimPos[0], winAnimPos[1], GAME_SIZE[0], GAME_SIZE[1])]
+            )
 
     def game_loop(self):
         """Game loop
@@ -71,6 +108,7 @@ class GameView:
         pygame.mixer.music.play(-1)
 
         # Start game loop
+        won = False
         going = True
         while going:
             self.clock.tick(FRAMERATE)
@@ -142,11 +180,21 @@ class GameView:
             elif self.game.checkWin():
                 newGameStats = self.game.gameStats.copy()
                 newGameStats["currentLvl"] = newGameStats["currentLvl"] + 1
-                self.game = Game(self.gameLoader, newGameStats, self.game.pressedKeys)
-                self.screen.blit(self.game.screen, (0, BAR_HEIGHT))
-                pygame.display.flip()
+                if not check_level_exists(newGameStats["currentLvl"]):
+                    self._winGame()
+                    going = False
+                    won = True
+                else:
+                    self.game = Game(
+                        self.gameLoader, newGameStats, self.game.pressedKeys
+                    )
+                    self.screen.blit(self.game.screen, (0, BAR_HEIGHT))
+                    pygame.display.flip()
 
-        save_game(self.gameStats)
+        if won:
+            delete_game_save()
+        else:
+            save_game(self.gameStats)
 
     def updateGameStats(self, playingMusicChanged=False):
         """Update game stats
@@ -211,12 +259,18 @@ class GameView:
         # Level information
         levelText = pygame.font.SysFont("None", FONT_SIZE)
         textImg = levelText.render(
-            f"Level: {self.gameStats['currentLvl']}/{NUM_LEVELS}", False, (0, 0, 0)
+            f"Level: {self.gameStats['currentLvl']}/{NUM_LEVELS}",
+            False,
+            (231, 231, 231),
         )
         rect = textImg.get_rect()
-        pygame.draw.rect(textImg, (255, 255, 255, 128), rect, 1)
+        pygame.draw.rect(textImg, BAR_COLOR, rect, 1)
         self.screen.blit(
-            textImg, ((GAME_SIZE[0] - rect[2]) / 2, (BAR_HEIGHT - rect.height) / 2)
+            textImg,
+            (
+                (GAME_SIZE[0] - rect.width) / 2,
+                (BAR_HEIGHT - rect.height - levelText.get_descent()) / 2,
+            ),
         )
 
         # Home icon
@@ -242,7 +296,7 @@ class GameView:
             self.screen.blit(
                 self.speakerIconImg,
                 (
-                    GAME_SIZE[0] - 2 * X_PADDING,
+                    GAME_SIZE[0] - (self.rectSpeaker.width + X_PADDING),
                     (BAR_HEIGHT - self.rectSpeaker.height) / 2,
                 ),
             )
@@ -251,29 +305,55 @@ class GameView:
             self.screen.blit(
                 self.speakerMuteIconImg,
                 (
-                    GAME_SIZE[0] - 2 * X_PADDING,
+                    GAME_SIZE[0] - (self.rectSpeaker.width + X_PADDING),
                     (BAR_HEIGHT - self.rectSpeaker.height) / 2,
                 ),
             )
 
         # Mask Icon
         rectMask = self.maskIconImg.get_rect()
+        maskPos = (
+            X_PADDING,
+            BAR_HEIGHT + GAME_SIZE[1] + round((BAR_HEIGHT - rectMask.height) / 2),
+        )
         self.screen.blit(
             self.maskIconImg,
-            (X_PADDING, BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectMask.height) / 2),
+            maskPos,
         )
 
         # Mask Text
         numMaskText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
-        textImgMask = numMaskText.render(f": {self.gameStats['maskCount']}", False, (0, 0, 0))
-        rectNum = textImgMask.get_rect()
-        pygame.draw.rect(textImgMask, (255, 255, 255, 128), rectNum, 1)
+        textImgMask = numMaskText.render(
+            f": {self.gameStats['maskCount']}", False, (231, 231, 231)
+        )
+        rectNumMask = textImgMask.get_rect()
+        pygame.draw.rect(textImgMask, BAR_COLOR, rectNumMask, 1)
         self.screen.blit(
             textImgMask,
             (
-                1.5 * X_PADDING + rectMask.width,
-                BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectMask.height) / 2,
+                maskPos[0] + rectMask.width + 5,
+                BAR_HEIGHT
+                + GAME_SIZE[1]
+                + (BAR_HEIGHT - rectNumMask.height - numMaskText.get_descent()) / 2,
             ),
+        )
+
+        # Death Text
+        numDeathText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
+        textImgDeath = numDeathText.render(
+            f": {self.gameStats['deathCount']}", False, (231, 231, 231)
+        )
+        rectNumDeath = textImgDeath.get_rect()
+        pygame.draw.rect(textImgDeath, BAR_COLOR, rectNumDeath, 1)
+        numDeathPos = (
+            GAME_SIZE[0] - (rectNumDeath.x + rectNumDeath.width + X_PADDING),
+            BAR_HEIGHT
+            + GAME_SIZE[1]
+            + (BAR_HEIGHT - rectNumDeath.height - numDeathText.get_descent()) / 2,
+        )
+        self.screen.blit(
+            textImgDeath,
+            numDeathPos,
         )
 
         # Scull Icon
@@ -281,21 +361,9 @@ class GameView:
         self.screen.blit(
             self.scullIconImg,
             (
-                GAME_SIZE[0] - 5 * X_PADDING,
+                numDeathPos[0] - rectScull.width - 5,
                 BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectScull.height) / 2,
             ),
         )
 
-        # Death Text
-        numDeathText = pygame.font.SysFont("None", FONT_SIZE_BOTTOM_BAR)
-        textImgDeath = numDeathText.render(f": {self.gameStats['deathCount']}", False, (0, 0, 0))
-        rectNumDeath = textImgDeath.get_rect()
-        pygame.draw.rect(textImgDeath, (255, 255, 255, 128), rectNum, 1)
-        self.screen.blit(
-            textImgDeath,
-            (
-                GAME_SIZE[0] - 3 * X_PADDING,
-                BAR_HEIGHT + GAME_SIZE[1] + (BAR_HEIGHT - rectNumDeath.height) / 2,
-            ),
-        )
         logging.info("Drawing info bars was successful")
