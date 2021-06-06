@@ -128,7 +128,7 @@ def delete_game_save():
     saveFilePath = os.path.join(ASSETS_LOCATION, SAVEFILE_NAME)
     os.remove(saveFilePath)
     # Wait for file deletion
-    while os.path.exists(levelPath):
+    while os.path.exists(saveFilePath):
         sleep(0.0001)
 
 

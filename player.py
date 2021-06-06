@@ -126,17 +126,17 @@ class Player(pygame.sprite.Sprite):
         movedX = False
         # Change Speed of Player according to all pressed keys regarding order, change orientation if necessary
         for key in reversed(keys):
-            if key == pygame.K_w and not movedY:
+            if key in [pygame.K_w, pygame.K_UP] and not movedY:
                 self.movey = -PLAYER_SPEED
                 movedY = True
-            elif key == pygame.K_a and not movedX:
+            elif key in [pygame.K_a, pygame.K_LEFT] and not movedX:
                 # Flip if direction changes
                 if self.facingRight:
                     self._turn()
                     self.facingRight = False
                 self.movex = -PLAYER_SPEED
                 movedX = True
-            elif key == pygame.K_s and not movedY:
+            elif key in [pygame.K_s, pygame.K_DOWN] and not movedY:
                 self.movey = PLAYER_SPEED
                 movedY = True
             elif not movedX:

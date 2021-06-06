@@ -129,6 +129,10 @@ class GameView:
                     pygame.K_a,
                     pygame.K_s,
                     pygame.K_d,
+                    pygame.K_DOWN,
+                    pygame.K_UP,
+                    pygame.K_RIGHT,
+                    pygame.K_LEFT,
                 ]:
                     self.game.pressedKeys.remove(event.key)
 
@@ -137,6 +141,10 @@ class GameView:
                     pygame.K_a,
                     pygame.K_s,
                     pygame.K_d,
+                    pygame.K_DOWN,
+                    pygame.K_UP,
+                    pygame.K_RIGHT,
+                    pygame.K_LEFT,
                 ]:
                     self.game.pressedKeys.append(event.key)
 
