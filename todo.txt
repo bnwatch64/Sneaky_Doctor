@@ -7,10 +7,7 @@
 OPTIONAL:
 
 Sujan:
-- Icons in einen Ordner (code anpassen)
-- Husten Animation (7 frames, 50x50)
-- Menü Hintergrund (recherchieren, ggf. bild mit 1000x700 erstellen)
-- Sounds aussuchen
+
 
 Allgemein:
 - Assets Ordnerstruktur verbessern
@@ -21,6 +18,8 @@ Allgemein:
 - +1 Mask dialog in gameView(!)
 - Sounds
 - How to play
+- Sounds aussuchen
+
 
 
 
@@ -39,3 +38,6 @@ Solved Tasks:
 - GameLoader als Klasse umsetzen (nur ein Mal assets laden)
 - Exit Perspektive fixen
 - Death Animation
+- Icons in einen Ordner (code anpassen)
+- Husten Animation (7 frames, 50x50)
+- Menü Hintergrund (recherchieren, ggf. bild mit 1000x700 erstellen)

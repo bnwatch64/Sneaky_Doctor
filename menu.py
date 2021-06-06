@@ -1,9 +1,11 @@
 import logging
 import pygame
 import pygame_menu
+import os
 from gameView import GameView
 from gameConstants import *
 from loadsources import check_save_file_exists
+
 
 
 
@@ -45,6 +47,11 @@ class Menu:
             title_font_size=75,
             background_color=(0,0,0),
         )
+        myImage = pygame_menu.baseimage.BaseImage(
+            image_path=os.path.join(ASSETS_LOCATION, "background.png"),
+            drawing_mode=pygame_menu.baseimage.IMAGE_MODE_CENTER
+        )
+        my_theme.background_color = myImage
         menu = pygame_menu.Menu(
             "Sneaky Doctor", SCREEN_SIZE[0], SCREEN_SIZE[1], theme=my_theme
         )
