@@ -18,11 +18,32 @@ from loadsources import check_save_file_exists
 
 
 class Menu:
+    """Menu class
+    * Creates game menu providing 'continue', 'new game' and 'quit' functionality
+
+    Public Methods:
+        * def create_menu(self)
+    """
+
     def __init__(self):
         self.gameView = None
         self.screen = pygame.display.get_surface()
 
     def _start_game(self, newGame=False):
+        """start game (private)
+        * Callback function for 'new game' and 'continue' UI buttons
+        * Creates a new GameView object, runs the game with game_loop() and redraws the menu after
+
+        Args:
+            newGame (bool, optional): Determines whether game should be loaded from save file, defaults to False
+
+        Return:
+            None
+
+        Test:
+            * Value of newGame is passed to GameView initializer successfully
+            * Menu is redrawn under all conditions
+        """
         self.gameView = GameView(newGame)
         self.gameView.game_loop()
         self.gameView = None
@@ -30,7 +51,7 @@ class Menu:
         self.create_menu()
 
     def create_menu(self):
-        """Create Menu
+        """create menu
         * pygame_menu module is used
         * New Game, Continue, How To Play?, Highscores, Level Selector, Options, Quit buttons are created
         * First view of user
@@ -42,7 +63,8 @@ class Menu:
             None
 
         Test:
-            *
+            * Fonts are loaded correctly on different systems
+            * 'continue' option is always greyed out if no save.json exists
         """
 
         logging.info("Initializing Menu...")
@@ -77,10 +99,6 @@ class Menu:
         else:
             menu.add.button("Continue", self._start_game)
         menu.add.button("New Game", self._start_game, True)
-        menu.add.button("How To Play")
-        menu.add.button("Highscores")
-        menu.add.button("Level Selector")
-        menu.add.button("Options")
         menu.add.button("Quit", pygame_menu.events.EXIT)
         logging.info("Initializing Menu was successfull")
         menu.mainloop(self.screen)

@@ -18,9 +18,12 @@ from gameConstants import *
 
 
 class GameView:
-    """Game View Creation
-    * Class draws the UI within the game (top, bottom bars, icons within bars)
+    """Game View class
+    * Class draws the UI wrapper for the game (top, bottom bars, icons within bars, status texts)
+    * Loades game stats from save file if newGame bool is False
+    * Creates game object for current level
     * Handles the user input during game
+    * Updates and blits the game in every time step
     * Updates the bars after a change
 
     Public Methods:
@@ -53,6 +56,20 @@ class GameView:
         self.playingMusic = True
 
     def _winGame(self):
+        """win game
+        * Blits and updates graphics for won game
+        * Gets triggered if all levels are done
+
+        Args:
+            None
+
+        Return:
+            None
+
+        Test:
+            * Win animation is played correctly
+            * Exit conditions function as expected (Space, Esc, Mousepress on home icon)
+        """
         going = True
         imageCounter = 0
         winAnimPos = (0, BAR_HEIGHT)
@@ -89,11 +106,14 @@ class GameView:
             )
 
     def game_loop(self):
-        """Game loop
+        """game loop
             * Background sound is set here
+            * Handles user input
             * Game screen is drawn
             * while loop handles the events
             * Changed areas on screen are updated
+            * Saves game after exit
+            * Deletes save file after win
 
         Args:
             None
@@ -212,7 +232,7 @@ class GameView:
             save_game(self.gameStats)
 
     def updateGameStats(self, playingMusicChanged=False):
-        """Update game stats
+        """update game stats
             * Local gameStats and info bars are updated if game stats changed
 
         Args:

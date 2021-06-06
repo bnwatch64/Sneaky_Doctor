@@ -1,5 +1,5 @@
 """gameObject
-    * Creates in game objects
+    * Hold the GameObject and AnimatedGameObject classes
 
     Attributes:
         authors: Benjamin Ader & Sujan Kanapathipillai
@@ -10,16 +10,19 @@ import logging
 import pygame
 from gameConstants import *
 
+
 class GameObject(pygame.sprite.Sprite):
     """GameObject class
-        * All stationary objects within game are objects of this class
+    * All stationary objects within game are objects of this class
+    * Holds generic real rect, rect, image and layer attributes for right blitting
 
-        Args:
-            pygame.sprite.Sprite (class): Base class of GameObject
+    Args:
+        pygame.sprite.Sprite (class): Parent class of GameObject (inherits from)
 
-        Public methods:
-            def moveLayer(self, offset)
+    Public methods:
+        def moveLayer(self, offset)
     """
+
     def __init__(self, surf, realPos):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.image = surf
@@ -35,15 +38,16 @@ class GameObject(pygame.sprite.Sprite):
 
 class AnimatedGameObject(GameObject):
     """AnimatedGameObject class
-        * inherits from GameObject class
-        * All animated objects within game are objects of this class
+    * Extension of GameObject class
+    * Adds attributes and functionality for object animation
 
-        Args:
-            GameObject (class): Base class of AnimatedGameObject
+    Args:
+        GameObject (class): Parent class of AnimatedGameObject (inherits from)
 
-        Public methods:
-            def update(self, _)
+    Public methods:
+        def update(self, _)
     """
+
     def __init__(self, anim, realPos):
         self.subFrameCounter = 0
         self.imageCounter = 0
@@ -52,17 +56,17 @@ class AnimatedGameObject(GameObject):
 
     def update(self, _):
         """update
-            * updates the image of the animated game objects
+        * Updates the image of the animated game object
 
-            Args:
-                _ (none): [description]
+        Args:
+            None
 
-            Return:
-                None
+        Return:
+            None
 
-            Test:
-                * Check if imageCounter updates every ANIMATION_REFRESH time period
-                * Check if self.image surface updates every ANIMATION_REFRESH time period
+        Test:
+            * Check if imageCounter updates every ANIMATION_REFRESH time period
+            * Check if self.image surface updates every ANIMATION_REFRESH time period
         """
         logging.info("Updating animated game objects...")
         # Animate Object

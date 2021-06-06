@@ -1,6 +1,5 @@
 """gameLoader
-    * .png files loaded which contain enemy path, map design
-    * functionalities added to loaded .png files
+    * Holds the GameLoader class
 
     Attributes:
         authors: Benjamin Ader & Sujan Kanapathipillai
@@ -18,11 +17,12 @@ from gameConstants import *
 
 class GameLoader:
     """GameLoader class
-        * Map of level and enemy paths is constructed
+    * Holds all methods for loading level data from .png files
+    * Loads all game assets as attributes once for better run time performance
 
-        Public Methods:
-        * def load_level(self, levelNum))
-        * def load_npc_paths(self)
+    Public Methods:
+    * def load_level(self, levelNum))
+    * def load_npc_paths(self)
     """
 
     def __init__(self):
@@ -40,27 +40,28 @@ class GameLoader:
             "game_objects/mask_anim", scale=(BLOCK_SIZE, WALL_HEIGHT)
         )
 
-
     def load_level(self, levelNum):
         """load level
-            * .png level file is loaded with the map
-            * From the pixels of the .png the building blocks for the map are constructed
+            * Parses level map from map[x].png file
+            * Loads player start and exit position from .png file
+            * Throws error if design rules are violated
+            * Creates Sprites and realRects for all desired GameObjects for later blitting and collision handling
 
         Args:
-            levelNum (int): Number of the level that needs to be loaded 
+            levelNum (int): Number of the level that needs to be loaded
 
         Raises:
-            SystemExit: [description]
-            SystemExit: [description]
-            SystemExit: [description]
+            SystemExit: Map Load Error
+            SystemExit: Map Load Error
+            SystemExit: Map Parse Error
 
         Returns:
            wallSprites (list): Each black pixel of the .png is part of the wall and is added to sprites, all sprites in wallSprites list
-           realWallRects (list): List of all wall rectangles
+           realWallRects (list): List of all real wall rectangles
            maskSprites (list): List of all mask sprites
            realStartPos (tuple): Real start position is calculated
            realExitRect (pygame.Rect): Exit rectangle with real sizes
-        
+
         Test:
             * Create .png with black lines, wallsprites list and realWallRects list should be filled according to the .png file
             * Create .png file without blue pixel this results in exception
@@ -161,23 +162,25 @@ class GameLoader:
         )
 
     def load_npc_paths(self, levelNum):
-        """load npc paths 
-            * Enemy paths are determined by .png file with black lines 
+        """load npc paths
+        * Parses Enemy paths from all npc[x].png files of one level
+        * Creates Enemys with respective paths for all .png files
+        * Reads all start positions of saif Enemies
 
-            Args:
-                levelNum (int): Number of the level that needs to be loaded
+        Args:
+            levelNum (int): Number of the level that needs to be loaded
 
-            Raises:
-                SystemExit: [description]
-                SystemExit: [description]
+        Raises:
+            SystemExit: NPC Path Load Error
+            SystemExit: NPC Path Load Error
 
-            Returns:
-               npcPaths (list): List of all path blocks
-               npcStartPoss (list): Enemy starting point
-            
-            Test:
-                * Create .png file with enemy path, path should be saved in npcPaths
-                * On enemy path mark one block with green color, npcStartPoss should contain the position of the colored block
+        Returns:
+           npcPaths (list): List of all position pixels of loaded paths
+           npcStartPoss (list): List of all Enemy starting points
+
+        Test:
+            * Create .png file with enemy path, path should be saved in npcPaths
+            * On enemy path mark one block with green color, npcStartPoss should contain the position of the colored block
         """
         logging.info(
             "Loading NPC paths for level " + str(levelNum) + " from image files..."
@@ -267,24 +270,24 @@ class GameLoader:
         self, pathData, listToAppend, pixPos, ignorePixels=[], appendBackwards=True
     ):
         """trace and append pixels
-            * Traces a path of pixels and appends them to listToAppend
+        * Recursive path finding algorithm for tracing a black line in a loaded .png image
 
-            Args:
-                pathData (ImagineCore): [description]
-                listToAppend (list): listToAppend contains the whole enemy path as list of tuples
-                pixPos (tuple): [description]
-                ignorePixels (list, optional): [description]. Defaults to [].
-                appendBackwards (bool, optional): [description]. Defaults to True.
+        Args:
+            pathData (ImagineCore): pixel data of npc .png file
+            listToAppend (list): List to append current found pixel to
+            pixPos (tuple): Position of this pixel
+            ignorePixels (list, optional): List of all pixels that were already taken into account. Defaults to [].
+            appendBackwards (bool, optional): Determines order to append items. Defaults to True.
 
-            Raises:
-                SystemExit: [description]
+        Raises:
+            SystemExit: [description]
 
-            Return:
-                None
+        Return:
+            None
 
-            Test:
-                *  
-                * 
+        Test:
+            * Parse .png file with path on sides of image
+            * Parse narrow paths
         """
 
         # Check every neighboring pixel if it's part of the path
@@ -383,17 +386,15 @@ class GameLoader:
 
     def _pix_to_real_path(self, pixPath):
         """pix to real path
-            * 
+        * Translates pixel positions in .png file to actual blitting positions
 
-            Args:
-                pixPath ([type]): [description]
+        Args:
+            pixPath ([type]): path in form of pixel coordinates
 
-            Return:
-                realPath (type): [description]
+        Return:
+            realPath (type): path in form of real pixel coordinates
 
-            Test:
-                *
-                *
+        Test: Same as for _trace_and_append_pixels
         """
         # Creates a list of real positions from a list of pixel positions
 

@@ -14,7 +14,7 @@ from gameConstants import *
 
 
 # Configure logger
-logging.basicConfig(filename='game.log', filemode='w',level=logging.INFO)
+logging.basicConfig(filename="game.log", filemode="w", level=logging.INFO)
 # Init game
 logging.info("Initializing pygame...")
 pygame.init()

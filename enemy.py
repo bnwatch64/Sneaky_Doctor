@@ -1,5 +1,5 @@
 """enemy
-    * Creates enemies that behave according to algorithms
+    * Holds the Enemy class
 
     Attributes:
         authors: Benjamin Ader & Sujan Kanapathipillai
@@ -14,15 +14,18 @@ from gameConstants import *
 
 class Enemy(pygame.sprite.Sprite):
     """Enemy class
-        * enemy created
-        * enemy controlled by path algorithm
+    * Loads animations from all angles (front, back, left, right)
+    * Initiates frame and image counter for animation handling
+    * Initiates image, realRect, rect and _layer attributes for correct positioning and blitting
+    * Initiates facing attribute for animation updates
+    * Holds path and speed data for path following abilities
 
-        Args:
-            pygame (Sprite): Inherits from pygame Sprite class
+    Args:
+        pygame (Sprite): Inherits from pygame Sprite class
 
-        Public Methods:
-        * def get_layer(self)
-        * def update(self, _)
+    Public Methods:
+    * def get_layer(self)
+    * def update(self, _)
     """
 
     def __init__(self, realStartPos, path):
@@ -43,37 +46,51 @@ class Enemy(pygame.sprite.Sprite):
 
     def get_layer(self):
         """get layer
-            * Game screen is divided vertically into layers 
+        * Getter function for layer attribute for correct blitting in 2.5D space
 
-            Args:
-                None
+        Args:
+            None
 
-            Return:
-                _layer(int): Current layer number a certain object stands on is returned
+        Return:
+            _layer(int): Current layer number a certain object stands on is returned
+
+        Test:
+        * Actual value is returned
+        * Value is in bonds
         """
         return self._layer
 
     def _calcRect(self):
-        """calc rect
-            * Calculates the real rect sizes(top down view) into display rect sizes(gamer view)
-            Args:
-                None
-            
-            Return: 
-                None
+        """calc rect (private)
+        * Calculates the display rect sizes (gamer view) from real rect sizes (top down view)
+
+        Args:
+            None
+
+        Return:
+            None
+
+        Test:
+            * Correct translation with different BLOCK_SIZE values
+            * No going out of bonds (batch testing)
         """
         self.rect.x = self.realRect.x - int(round(0.25 * BLOCK_SIZE))
         self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
 
     def _move(self):
-        """move
-            * move function of the enemies
+        """move (private)
+        * Moves the enemy alongside its loaded path
+        * Chooses facing attribute according to new movement
 
-            Args:
-                None
+        Args:
+            None
 
-            Returns:
-                path[self.pathPos](): Path index on which enemy stands on is returned
+        Returns:
+            path[self.pathPos](): Next position on the path for updating enemy position
+
+        Test:
+        * Enemy stays in bonds of path list no matter the speed and size
+        * Enemy correctly turns on each end of the path
         """
         # Get the next position alongside the path
         newPathPos = self.pathPos + self.speed
@@ -112,17 +129,22 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self, _):
         """update
-            * enemy animation is updated after enemy is moved
+        * Sprite update function
+        * Moves Enemy alongside its path
+        * Progresses animation
+        * Translates real (top down) rect into display rect
+        * Updates the layer for right perspective blitting
+        * No collision handling, that's part of the level designers job
 
-            Args:
-                _ ([type]): [description]
-            
-            Return:
-                None
+        Args:
+            None
 
-            Test:
-                *
-                *
+        Return:
+            None
+
+        Test:
+            * Enemy is always facing the way it's heading
+            * Real rect is correctly translated to rect
         """
         # Move Character
         newRealPos = self._move()

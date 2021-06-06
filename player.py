@@ -1,5 +1,5 @@
 """player
-    * Creates the player the user controls during game
+    * Holds the player class
 
     Attributes:
         authors: Benjamin Ader & Sujan Kanapathipillai
@@ -13,15 +13,18 @@ from gameConstants import *
 
 class Player(pygame.sprite.Sprite):
     """Player class
-        * player is created
-        * player is controlled by user
+    * Loads all animations (idle, sprint, death)
+    * Initiates frame and image counter for animation handling
+    * Initiates image, realRect, rect and _layer attributes for correct positioning and blitting
+    * Initiates move and facing attributes for position and animation updates
+    * Holds protect and death counter for special cases
 
-        Public Methods:
-        * def get_layer(self)
-        * def deathProtect(self)
-        * def die(self)
-        * def move(self, keys)
-        * def update(self, realWallRects)
+    Public Methods:
+    * def get_layer(self)
+    * def deathProtect(self)
+    * def die(self)
+    * def move(self, keys)
+    * def update(self, realWallRects)
     """
 
     def __init__(self, realStartPos):
@@ -44,37 +47,38 @@ class Player(pygame.sprite.Sprite):
         self.dyingCounter = 0
 
     def _get_middle_value(self, valueList):
-        """get middle value
+        """get middle value (private)
             * Determines the value of a list with length 3, that is neither max nor min
 
         Args:
-            valueList (list): Contains three values 
+            valueList (list): Contains three values
 
         Returns:
             valuelist[0](int): Returns the the value of a list with length 3, that is neither max nor min
-        
+
         Test:
             * Returned value is neither max nor min value of the valueList
-            * 
+            * Functions if e.g. all input values are the same
         """
-        
+
         valueList.remove(max(valueList))
         valueList.remove(min(valueList))
         return valueList[0]
 
     def _turn(self):
-        """turn
-            * horizontally flips all images if player isn't dying
+        """turn (private)
+        * horizontally flips all images if player changes orientation
+        * gets skipped if player is dying (no more updates)
 
-            Args:
-                None
+        Args:
+            None
 
-            Return:
-                None
-            
-            Test:
-                * Compare initial image with turned image
-                * Image not turned when player is dying
+        Return:
+            None
+
+        Test:
+            * Compare initial image with turned image
+            * Image not turned when player is dying
         """
 
         if self.dyingCounter:
@@ -89,37 +93,38 @@ class Player(pygame.sprite.Sprite):
             self.death_anim[i] = pygame.transform.flip(self.death_anim[i], True, False)
 
     def _calcRect(self):
-        """calc rect
-            * Calculates the real rect sizes(top down view) into display rect sizes(gamer view)
+        """calc rect (private)
+        * Calculates the display rect sizes (gamer view) from real rect sizes (top down view)
 
-            Args:
-                None
-            
-            Return:
-                None
-            
-            Test:
-                * 
-                * 
+        Args:
+            None
+
+        Return:
+            None
+
+        Test:
+            * Correct translation with different BLOCK_SIZE values
+            * No going out of bonds (batch testing)
         """
         self.rect.x = self.realRect.x - int(round(0.5 * BLOCK_SIZE))
         self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
 
     def _handleWallCollisions(self, realWallRects):
-        """handle wall collisions
-            * Handles all possible collisions with stationary game objects
+        """handle wall collisions (private)
+        * Handles all possible collisions with stationary game objects
+        * Pushes the player out of said objects if needed
 
-            Args:
-                realWallRects (Rect): 
+        Args:
+            realWallRects (Rect): List of all real rects (top down view) of stationary game objects (walls)
 
-            Return:
-                None
+        Return:
+            None
 
-            Test:
-                * All different possibilities of collissions with wall do not result in exception
-                * 
+        Test:
+            * All different possibilities of collissions with wall do not result in exception
+            * Fast changing user inputs have no effect on functionality
         """
-        
+
         collidedWallIdxs = self.realRect.collidelistall(realWallRects)
 
         # Only colliding with horizontal or vertical wall
@@ -174,46 +179,52 @@ class Player(pygame.sprite.Sprite):
 
     def get_layer(self):
         """get layer
-            * Game screen is divided vertically into layers 
+        * Getter function for layer attribute for correct blitting in 2.5D space
 
-            Args:
-                None
+        Args:
+            None
 
-            Return:
-                _layer(int): Current layer number a certain object stands on is returned
+        Return:
+            _layer(int): Current layer number a certain object stands on is returned
+
+        Test:
+        * Actual value is returned
+        * Value is in bonds
         """
         return self._layer
 
     def deathProtect(self):
         """death protect
-            * player is protected while mask counter bigger than 0
+        * Protects the player from dying for PROTECT_DURATION seconds
+        * Sets the deathProtectCounter to respective value
 
-            Args:
-                None
-            
-            Return:
-                None
+        Args:
+            None
 
-            Test:
-                * Collide with enemy after collecting mask
-                * 
+        Return:
+            None
+
+        Test:
+            * Player can't die when protected
+            * Player gets protected when colliding with Enemy while having at least one mask
         """
         # Activate death protect for specified duration
         self.deathProtectCounter = int(round(PROTECT_DURATION * FRAMERATE))
 
     def die(self):
-        """die 
-            * after colliding with enemy (without masks) player animation changes
+        """die
+        * Change player animation to dying animation
+        * Results in ignoring of all further user inputs
 
-            Args:
-                None
+        Args:
+            None
 
-            Return:
-                None
-            
-            Test:
-                * Collide with enemy and observe animation
-                * dyingCounter is iterating
+        Return:
+            None
+
+        Test:
+            * Collide with enemy and observe animation
+            * Player can't move while dying
         """
         # Play dying animation
         self.dyingCounter = int(round(DYING_DURATION * FRAMERATE))
@@ -222,17 +233,19 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, keys):
         """move
-            * player is moved according to pressed keys
+        * Action handler for moving key presses (w, a, s, d, arrow keys)
+        * Handles events where contradictory keys are pressed at the same time
+        * Updates the movex, movey and facingRight properties accordingly
 
-            Args:
-                keys (list): List of all pressed keys
+        Args:
+            keys (list): List of all pressed keys
 
-            Return:
-                None
+        Return:
+            None
 
-            Test:
-                * all pressed keys (w, a, s, d, arrow keys) change player position
-                * press two keys (e.g. w, d) at the same time
+        Test:
+            * all pressed keys (w, a, s, d, arrow keys) change player speed as expected
+            * press two or more keys (e.g. w, d) at the same time
         """
         movedY = False
         movedX = False
@@ -269,19 +282,26 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, realWallRects):
         """update
-            * animation updated after moved player
+        * Sprite update function
+        * Progresses animation
+        * Cheks if player is dying
+        * Moves the player with movex and movey in real 2.5D space
+        * Handles wall and border collisions
+        * Translates real (top down) rect into display rect
+        * Updates the layer for right perspective blitting
+        * Handles protected and dying events
 
-            Args:
-                realWallRects (Rect): Reactangle of walls(top down view sizes)
+        Args:
+            realWallRects (Rect): List of real rectangles of walls (top down view sizes)
 
-            Return:
-                None
-            
-            Test:
-                * Move player and observe animation
-                * Collide with wall
+        Return:
+            None
+
+        Test:
+            * Move player and observe animation
+            * Collide with wall
         """
-        
+
         logging.debug("Updating player animation...")
         # Animate Character
         if self.subFrameCounter == ANIMATION_REFRESH - 1:
@@ -347,4 +367,5 @@ class Player(pygame.sprite.Sprite):
         # Let character blink if he is protected
         if (self.deathProtectCounter % 8) in range(5, 8):
             self.image = pygame.Surface((0, 0))
+
     logging.debug("Updating player animation was successful")
