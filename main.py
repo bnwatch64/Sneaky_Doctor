@@ -14,7 +14,15 @@ from gameConstants import *
 
 
 # Configure logger
-logging.basicConfig(filename="game.log", filemode="w", level=logging.INFO)
+logging.basicConfig(
+    filename="game.log",
+    filemode="w",
+    level=logging.INFO,
+    force=True,
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+    datefmt="%m-%d %H:%M",
+)
+logging.getLogger().setLevel(logging.DEBUG)
 # Init game
 logging.info("Initializing pygame...")
 pygame.init()
