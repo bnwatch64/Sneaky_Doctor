@@ -7,8 +7,6 @@ from gameConstants import *
 from loadsources import check_save_file_exists
 
 
-
-
 class Menu:
     def __init__(self):
         self.gameView = None
@@ -18,10 +16,8 @@ class Menu:
         self.gameView = GameView(newGame)
         self.gameView.game_loop()
         self.gameView = None
-        
-        if check_save_file_exists():
-            self.create_menu()
 
+        self.create_menu()
 
     def create_menu(self):
         """Create Menu
@@ -36,7 +32,7 @@ class Menu:
             None
 
         Test:
-            * 
+            *
         """
 
         logging.info("Initializing Menu...")
@@ -45,11 +41,11 @@ class Menu:
             title_bar_style=pygame_menu.widgets.MENUBAR_STYLE_NONE,
             title_font=pygame_menu.font.FONT_8BIT,
             title_font_size=75,
-            background_color=(0,0,0),
+            background_color=(0, 0, 0),
         )
         myImage = pygame_menu.baseimage.BaseImage(
             image_path=os.path.join(ASSETS_LOCATION, "background.png"),
-            drawing_mode=pygame_menu.baseimage.IMAGE_MODE_CENTER
+            drawing_mode=pygame_menu.baseimage.IMAGE_MODE_CENTER,
         )
         my_theme.background_color = myImage
         menu = pygame_menu.Menu(
@@ -58,7 +54,16 @@ class Menu:
         pygame.font.init()
         if not check_save_file_exists():
             buttonContinue = menu.add.button("Continue")
-            buttonContinue.set_font(font=pygame_menu.font.FONT_8BIT, font_size=30, color=(20,20,20,0), selected_color=(20,20,20,0), readonly_color=(255,255,255,0), readonly_selected_color=(255,255,255,0), background_color=(0,0,0,255), antialias=False)
+            buttonContinue.set_font(
+                font=pygame_menu.font.FONT_8BIT,
+                font_size=30,
+                color=(20, 20, 20, 0),
+                selected_color=(20, 20, 20, 0),
+                readonly_color=(255, 255, 255, 0),
+                readonly_selected_color=(255, 255, 255, 0),
+                background_color=(0, 0, 0, 255),
+                antialias=False,
+            )
         else:
             menu.add.button("Continue", self._start_game)
         menu.add.button("New Game", self._start_game, True)

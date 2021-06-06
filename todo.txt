@@ -8,13 +8,10 @@ OPTIONAL:
 - Enemy husten
 - Player mit Maske assets
 - Enemy Speed über Stärke Startpixel
-- Enemy Richtung über blauen Pixel
 - +1 Mask dialog in gameView(!)
 - Sounds
 - How to play
 - Sounds aussuchen
-
-
 
 
 

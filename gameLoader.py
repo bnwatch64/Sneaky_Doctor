@@ -212,7 +212,11 @@ class GameLoader:
         # Check every neighboring pixel if it's part of the path
         neighborsPos = []
         for x in range(pixPos[0] - 1, pixPos[0] + 2):
+            if x > 31:
+                continue
             for y in range(pixPos[1] - 1, pixPos[1] + 2):
+                if y > 30:
+                    continue
                 if (
                     not (x, y) == pixPos
                     and not (x, y) in ignorePixels
