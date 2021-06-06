@@ -1,9 +1,25 @@
+"""gameObject
+    * Creates in game objects
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 import logging
 import pygame
 from gameConstants import *
 
-
 class GameObject(pygame.sprite.Sprite):
+    """GameObject class
+        * All stationary objects within game are objects of this class
+
+        Args:
+            pygame.sprite.Sprite (class): Base class of GameObject
+
+        Public methods:
+            def moveLayer(self, offset)
+    """
     def __init__(self, surf, realPos):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.image = surf
@@ -18,6 +34,16 @@ class GameObject(pygame.sprite.Sprite):
 
 
 class AnimatedGameObject(GameObject):
+    """AnimatedGameObject class
+        * inherits from GameObject class
+        * All animated objects within game are objects of this class
+
+        Args:
+            GameObject (class): Base class of AnimatedGameObject
+
+        Public methods:
+            def update(self, _)
+    """
     def __init__(self, anim, realPos):
         self.subFrameCounter = 0
         self.imageCounter = 0
@@ -25,6 +51,20 @@ class AnimatedGameObject(GameObject):
         GameObject.__init__(self, anim[0], realPos)  # call GameObject initializer
 
     def update(self, _):
+        """update
+            * updates the image of the animated game objects
+
+            Args:
+                _ (none): [description]
+
+            Return:
+                None
+
+            Test:
+                * Check if imageCounter updates every ANIMATION_REFRESH time period
+                * Check if self.image surface updates every ANIMATION_REFRESH time period
+        """
+        logging.info("Updating animated game objects...")
         # Animate Object
         if self.subFrameCounter == ANIMATION_REFRESH - 1:
             # Increment ImageCounter
@@ -40,3 +80,4 @@ class AnimatedGameObject(GameObject):
             self.subFrameCounter = 0
         else:
             self.subFrameCounter += 1
+        logging.info("Updating animated game objects was successful")
