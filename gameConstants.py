@@ -1,3 +1,11 @@
+"""gameConstants
+    * Contains all constants that are used during whole project
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 # Game Constants
 FRAMERATE = 30
 BLOCK_SIZE = 30

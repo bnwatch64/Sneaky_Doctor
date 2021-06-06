@@ -1,14 +1,31 @@
+"""game
+    * Contains in game functionalities
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 import logging
 import pygame
 from gameLoader import GameLoader
 from player import Player
 from enemy import Enemy
-from loadsources import load_image
-
+from loadsources import load_collect_sound
 from gameConstants import *
 
 
+
+
 class Game:
+    """Game class
+        * Handle win, collision with mask, death
+
+        Public Methods:
+        * def checkWin(self)
+        * def checkDeath(self)
+        * def update_game(self)
+    """
     def __init__(self, gameLoader, gameStats, pressedKeys=[]):
         # Init attributes
         self.screen = pygame.Surface(GAME_SIZE)
@@ -47,6 +64,21 @@ class Game:
         self.screen.blit(self.floor, (0, 0))
 
     def _handleMaskCollisions(self):
+        """handle mask collisions
+            * after collision mask is removed
+            * mask counter increased by one after player - mask collsion
+
+            Args:
+                None
+            
+            Return:
+                None
+
+            Test:
+                * Collision with mask removes mask on map 
+                * Collision with mask increases mask counter in bottom bar by one 
+        """
+        soundCollect = load_collect_sound("Collect_Coin.wav")
         # Get all masks that collide with player
         collidedMasks = pygame.sprite.spritecollide(
             self.player, self.masks, True, collided=self._real_did_collide
@@ -54,25 +86,67 @@ class Game:
         for collidedMask in collidedMasks:
             # Remove mask from allsprites group
             self.allsprites.remove(collidedMask)
+            # Coin sound after collecting mask
+            soundCollect.play()
             # Increment mask count
             self.gameStats["maskCount"] = self.gameStats["maskCount"] + 1
 
     def _real_did_collide(self, sprite1, sprite2):
-        # Tests whether two sprites with realRects collide in real space
+        """real did collide
+            * Tests whether two sprites with realRects collide in real space
+
+            Args:
+                sprite1 (pygame.sprite.Group): Mask is member of a sprite group
+                sprite2 (pygame.sprite.Sprite): Player is member of allsprites
+
+            Return:
+                (bool): True if there is a collision, false if not
+
+            Test:
+                * Collision of rects returns True
+                * No Collision returns False
+        """
+        
         if sprite1.realRect.colliderect(sprite2.realRect):
             return True
         else:
             return False
 
     def checkWin(self):
-        # Check if player reached exit
+        """check win
+            * Check if player reached exit
+
+            Args:
+                None
+
+            Return:
+                (bool): True if player arrives destination, false if not
+            
+            Test:
+                * Player walks into door function returns True
+                * Player does not walk into door function returns False
+        """
+        
         if self.realExitRect.contains(self.player.realRect):
             return True
         else:
             return False
 
     def checkDeath(self):
-        # Check if player completed dying
+        """check death
+            * Check if player completed dying
+
+            Args:
+                None
+
+            Return:
+                (bool): True if player dies, false if player survives
+
+            Test:
+                * Colliding with enemy, player dies and function returns True
+                * Colldiing with enemy(with mask), player survives
+        """
+        
         if self.playerDying and self.player.dyingCounter == 0:
             return True
         # Check if player touched an enemy
@@ -97,6 +171,20 @@ class Game:
             return False
 
     def update_game(self):
+        """update game
+            * all member of sprite groups are updated after change
+
+            Args:
+                None
+
+            Returns:
+                dirtyAreas(list): List with all updated areas in game
+
+            Test:
+                * Collect mask and mask counter has to be changed
+                * 
+        """
+        logging.info("Updating changed areas of game...")
         # Update movement based on pressed keys
         self.player.move(self.pressedKeys)
 
@@ -112,6 +200,8 @@ class Game:
             self.allsprites.change_layer(npc, npc.get_layer())
         # Draw the new game Surface
         dirtyAreas = self.allsprites.draw(self.screen)
+
+        logging.info("Update changed areas of game successful")
 
         # Return dirty areas
         return dirtyAreas

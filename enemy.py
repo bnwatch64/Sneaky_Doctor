@@ -1,3 +1,11 @@
+"""enemy
+    * Creates enemies that behave according to algorithms
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 import logging
 import pygame
 from loadsources import *
@@ -5,6 +13,18 @@ from gameConstants import *
 
 
 class Enemy(pygame.sprite.Sprite):
+    """Enemy class
+        * enemy created
+        * enemy controlled by path algorithm
+
+        Args:
+            pygame (Sprite): Inherits from pygame Sprite class
+
+        Public Methods:
+        * def get_layer(self)
+        * def update(self, _)
+    """
+
     def __init__(self, realStartPos, path):
         pygame.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.anims = load_enemy_animations(scale=ENEMY_SIZE)
@@ -22,13 +42,39 @@ class Enemy(pygame.sprite.Sprite):
         self.facing = "right"
 
     def get_layer(self):
+        """get layer
+            * Game screen is divided vertically into layers 
+
+            Args:
+                None
+
+            Return:
+                _layer(int): Current layer number a certain object stands on is returned
+        """
         return self._layer
 
     def _calcRect(self):
+        """calc rect
+            * Calculates the real rect sizes(top down view) into display rect sizes(gamer view)
+            Args:
+                None
+            
+            Return: 
+                None
+        """
         self.rect.x = self.realRect.x - int(round(0.25 * BLOCK_SIZE))
         self.rect.y = int(round(0.7 * self.realRect.y)) + WALL_HEIGHT - self.rect.height
 
     def _move(self):
+        """move
+            * move function of the enemies
+
+            Args:
+                None
+
+            Returns:
+                path[self.pathPos](): Path index on which enemy stands on is returned
+        """
         # Get the next position alongside the path
         newPathPos = self.pathPos + self.speed
         if self.speed > 0:
@@ -65,6 +111,19 @@ class Enemy(pygame.sprite.Sprite):
         return self.path[self.pathPos]
 
     def update(self, _):
+        """update
+            * enemy animation is updated after enemy is moved
+
+            Args:
+                _ ([type]): [description]
+            
+            Return:
+                None
+
+            Test:
+                *
+                *
+        """
         # Move Character
         newRealPos = self._move()
         self.realRect.update(newRealPos, self.realRect.size)

@@ -1,3 +1,13 @@
+"""menu
+    * Displaying menu
+    * menu created with pygame_menu
+    * pygame_menu has seperate user input handler
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 import logging
 import pygame
 import pygame_menu

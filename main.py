@@ -1,7 +1,10 @@
 """Sneaky Doctor
-    authors: Benjamin Ader & Sujan Kanapathipillai
-    date: 02.06.2021
-    license: free
+    * Main function that initializes pygame and creates menu
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
 """
 
 import logging
@@ -11,7 +14,7 @@ from gameConstants import *
 
 
 # Configure logger
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename='game.log', filemode='w',level=logging.INFO)
 # Init game
 logging.info("Initializing pygame...")
 pygame.init()

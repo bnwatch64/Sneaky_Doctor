@@ -1,3 +1,12 @@
+"""gameView
+    * Creates, displays, updates UI
+    * Contains game_loop function
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 import logging
 import pygame
 from pygame.font import SysFont
@@ -18,8 +27,6 @@ class GameView:
         * def game_loop(self)
         * def updateGameStats(self, playingMusicChanged=False)
         * def drawBars(self)
-
-
     """
 
     def __init__(self, newGame):

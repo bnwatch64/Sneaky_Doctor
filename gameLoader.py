@@ -1,3 +1,12 @@
+"""gameLoader
+    * .png files loaded which contain enemy path, map design
+    * functionalities added to loaded .png files
+
+    Attributes:
+        authors: Benjamin Ader & Sujan Kanapathipillai
+        date: 06.06.2021
+        version: 0.0.1
+"""
 import logging
 import pygame
 from PIL import Image
@@ -8,6 +17,14 @@ from gameConstants import *
 
 
 class GameLoader:
+    """GameLoader class
+        * Map of level and enemy paths is constructed
+
+        Public Methods:
+        * def load_level(self, levelNum))
+        * def load_npc_paths(self)
+    """
+
     def __init__(self):
         # Load all gameObject assets once for better performance
         self.wallAsset, _ = load_image(
@@ -23,7 +40,31 @@ class GameLoader:
             "game_objects/mask_anim", scale=(BLOCK_SIZE, WALL_HEIGHT)
         )
 
+
     def load_level(self, levelNum):
+        """load level
+            * .png level file is loaded with the map
+            * From the pixels of the .png the building blocks for the map are constructed
+
+        Args:
+            levelNum (int): Number of the level that needs to be loaded 
+
+        Raises:
+            SystemExit: [description]
+            SystemExit: [description]
+            SystemExit: [description]
+
+        Returns:
+           wallSprites (list): Each black pixel of the .png is part of the wall and is added to sprites, all sprites in wallSprites list
+           realWallRects (list): List of all wall rectangles
+           maskSprites (list): List of all mask sprites
+           realStartPos (tuple): Real start position is calculated
+           realExitRect (pygame.Rect): Exit rectangle with real sizes
+        
+        Test:
+            * Create .png with black lines, wallsprites list and realWallRects list should be filled according to the .png file
+            * Create .png file without blue pixel this results in exception
+        """
         logging.info("Loading level " + str(levelNum) + " from image file...")
 
         # Get path to level map file
@@ -120,6 +161,24 @@ class GameLoader:
         )
 
     def load_npc_paths(self, levelNum):
+        """load npc paths 
+            * Enemy paths are determined by .png file with black lines 
+
+            Args:
+                levelNum (int): Number of the level that needs to be loaded
+
+            Raises:
+                SystemExit: [description]
+                SystemExit: [description]
+
+            Returns:
+               npcPaths (list): List of all path blocks
+               npcStartPoss (list): Enemy starting point
+            
+            Test:
+                * Create .png file with enemy path, path should be saved in npcPaths
+                * On enemy path mark one block with green color, npcStartPoss should contain the position of the colored block
+        """
         logging.info(
             "Loading NPC paths for level " + str(levelNum) + " from image files..."
         )
@@ -207,7 +266,26 @@ class GameLoader:
     def _trace_and_append_pixels(
         self, pathData, listToAppend, pixPos, ignorePixels=[], appendBackwards=True
     ):
-        # Traces a path of pixels from prePixelPos and appends them to listToAppend
+        """trace and append pixels
+            * Traces a path of pixels and appends them to listToAppend
+
+            Args:
+                pathData (ImagineCore): [description]
+                listToAppend (list): listToAppend contains the whole enemy path as list of tuples
+                pixPos (tuple): [description]
+                ignorePixels (list, optional): [description]. Defaults to [].
+                appendBackwards (bool, optional): [description]. Defaults to True.
+
+            Raises:
+                SystemExit: [description]
+
+            Return:
+                None
+
+            Test:
+                *  
+                * 
+        """
 
         # Check every neighboring pixel if it's part of the path
         neighborsPos = []
@@ -300,6 +378,19 @@ class GameLoader:
             raise SystemExit("NPC Path Parse Error")
 
     def _pix_to_real_path(self, pixPath):
+        """pix to real path
+            * 
+
+            Args:
+                pixPath ([type]): [description]
+
+            Return:
+                realPath (type): [description]
+
+            Test:
+                *
+                *
+        """
         # Creates a list of real positions from a list of pixel positions
 
         realPath = []
